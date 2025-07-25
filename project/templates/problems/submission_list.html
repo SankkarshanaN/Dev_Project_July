@@ -1,0 +1,12 @@
+<h2>🗃️ Your Submissions</h2>
+<ul>
+    {% for sub in submissions %}
+        <li>
+            <a href="{% url 'problems:submission_detail' sub.id %}">
+                {{ sub.problem.title }} - {{ sub.get_status_display }}
+            </a>
+        </li>
+    {% empty %}
+        <li>You haven't submitted anything yet.</li>
+    {% endfor %}
+</ul>

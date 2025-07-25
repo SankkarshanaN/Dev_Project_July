@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>🧠 All Problems</h2>
+
+    <form method="get" class="filter-form">
+        <label for="difficulty">Filter by Difficulty:</label>
+        <select name="difficulty" id="difficulty" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for value, label in difficulties %}
+                <option value="{{ value }}" {% if current_difficulty == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <p>Total: {{ filtered_count }} / {{ total_count }}</p>
+
+    <div class="problem-list">
+        {% for problem in problems %}
+            <div class="problem-card">
+                <h3><a href="{% url 'problems:problem_detail' problem.id %}">{{ problem.title }}</a></h3>
+                <p><strong>Difficulty:</strong> {{ problem.get_difficulty_display }}</p>
+                <p><strong>Points:</strong> {{ problem.points }}</p>
+            </div>
+        {% empty %}
+            <p>No problems found.</p>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if problems.has_previous %}
+            <a href="?page={{ problems.previous_page_number }}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}">Previous</a>
+        {% endif %}
+
+        <span>Page {{ problems.number }} of {{ problems.paginator.num_pages }}</span>
+
+        {% if problems.has_next %}
+            <a href="?page={{ problems.next_page_number }}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

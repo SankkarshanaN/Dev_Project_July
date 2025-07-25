@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>📝 {{ problem.title }}</h2>
+    <p><strong>Difficulty:</strong> {{ problem.get_difficulty_display }}</p>
+    <p><strong>Points:</strong> {{ problem.points }}</p>
+    <p><strong>Time Limit:</strong> {{ problem.time_limit }} sec</p>
+    <p><strong>Memory Limit:</strong> {{ problem.memory_limit }} MB</p>
+
+    <div class="description">
+        {{ problem.description|linebreaks }}
+    </div>
+
+    {% if user.is_authenticated %}
+        <h3>💻 Submit Solution</h3>
+        <form method="post">
+            {% csrf_token %}
+            <label for="language">Language:</label>
+            <select name="language" id="language" required>
+                <option value="python">Python</option>
+                <option value="cpp">C++</option>
+                <option value="java">Java</option>
+            </select>
+
+            <br><br>
+            <label for="code">Code:</label><br>
+            <textarea name="code" id="code" rows="12" cols="100" required></textarea>
+
+            <br><br>
+            <button type="submit">Submit</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a> to submit your solution.</p>
+    {% endif %}
+
+    <hr>
+    <h4>📊 Submission Stats</h4>
+    <p>Total Submissions: {{ submission_count }}</p>
+    {% if user_submissions %}
+        <h5>Your Submissions:</h5>
+        <ul>
+            {% for s in user_submissions %}
+                <li>
+                    {{ s.created_at|date:"M d, Y H:i" }} - {{ s.language|title }} - {{ s.status|title }}
+                    (<a href="{% url 'problems:submission_detail' s.id %}">View</a>)
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.navbar {
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-left a, .nav-right a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+.nav-left a:hover, .nav-right a:hover {
+    text-decoration: underline;
+}
+
+.dashboard-content {
+    padding: 40px;
+    text-align: center;
+}
+
+.dashboard-content h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.dashboard-content p {
+    font-size: 1.2em;
+    color: #666;
+}

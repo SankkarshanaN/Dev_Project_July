@@ -1,0 +1,5 @@
+<h2>📊 Dashboard</h2>
+<p>Welcome, {{ user.username }}!</p>
+<p>Total problems solved: {{ user.member.problems_solved }}</p>
+<p>Success rate: {{ user.member.success_rate|floatformat:2 }}%</p>
+<a href="{% url 'problems:problem_list' %}">Start Solving Problems</a>

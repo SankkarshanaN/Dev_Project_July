@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>📄 Submission Detail</h2>
+
+    <p><strong>Problem:</strong> {{ submission.problem.title }}</p>
+    <p><strong>User:</strong> {{ submission.user.username }}</p>
+    <p><strong>Language:</strong> {{ submission.language|title }}</p>
+    <p><strong>Status:</strong> {{ submission.status|title }}</p>
+    <p><strong>Submitted:</strong> {{ submission.created_at }}</p>
+
+    {% if submission.execution_time %}
+        <p><strong>Execution Time:</strong> {{ submission.execution_time }}s</p>
+    {% endif %}
+    {% if submission.memory_used %}
+        <p><strong>Memory Used:</strong> {{ submission.memory_used }}MB</p>
+    {% endif %}
+
+    <h4>Code:</h4>
+    <pre style="background: #f9f9f9; padding: 1em; border: 1px solid #ccc;">{{ submission.code }}</pre>
+
+    <p><a href="{% url 'problems:problem_detail' submission.problem.id %}">🔙 Back to Problem</a></p>
+</div>
+{% endblock %}

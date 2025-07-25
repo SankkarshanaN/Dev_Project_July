@@ -1,0 +1,16 @@
+.problem-card {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #fafafa;
+}
+
+.problem-card h3 {
+    margin: 0;
+}
+
+.problem-meta {
+    font-size: 0.9em;
+    color: #555;
+}

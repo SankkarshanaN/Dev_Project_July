@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="{% url 'problems:problem_list' %}">📘 Problems</a>
+        </div>
+        <div class="nav-right">
+            <a href="#">👤 {{ user.username }}</a>
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" style="background: none; border: none; color: white; cursor: pointer;">
+                    🚪 Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="dashboard-content">
+        <h1>Welcome, {{ user.username }}! 👋</h1>
+        <p>This is your personal dashboard.</p>
+    </main>
+</body>
+</html>

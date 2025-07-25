@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ member.full_name }} - Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Profile page for {{ member.full_name }}">
+    <link rel="icon" href="{% static 'favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'members/css/profile.css' %}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="profile-picture">
+                {% if member.profile_picture %}
+                    <img src="{{ member.profile_picture.url }}" alt="{{ member.full_name }}">
+                {% else %}
+                    👤
+                {% endif %}
+            </div>
+            <h1>{{ member.full_name }}</h1>
+            <div class="username">@{{ member.username }}</div>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="content">
+            <!-- Basic Information -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>📧 Contact Information</h3>
+                    <p><span class="label">Email:</span> {{ member.email }}</p>
+                    <p><span class="label">Username:</span> {{ member.username }}</p>
+                    <p class="date-joined">
+                        <span class="label">Joined:</span> 
+                        {{ member.join_date_timestamp|date:"F d, Y" }}
+                    </p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>💻 Programming Preferences</h3>
+                    <p><span class="label">Favorite Language:</span></p>
+                    <div class="language-badge">{{ member.get_favorite_language_display }}</div>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ member.problems_solved }}</div>
+                    <div class="stat-label">Problems Solved</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number">{{ member.total_submissions }}</div>
+                    <div class="stat-label">Total Submissions</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number success-rate">{{ member.success_rate|floatformat:1 }}%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+            
+            <!-- Bio Section -->
+            {% if member.bio %}
+            <div class="bio-section">
+                <h3>📝 About Me</h3>
+                <p>{{ member.bio|linebreaks }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Back Link -->
+            <a href="{% url 'members:show_members' %}" class="back-link">← Back to Members</a>
+        </div>
+    </div>
+</body>
+</html>

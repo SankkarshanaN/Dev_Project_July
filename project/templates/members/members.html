@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Judge Members</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'members/css/profile.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-container">
+        <div class="hero-section">
+            <h1>Our Coding Community</h1>
+            <p class="hero-subtitle">Meet our talented problem solvers</p>
+        </div>
+        
+        <div class="container">
+            <div class="members-grid">
+                {% for member in all_members %}
+                    <div class="member-card">
+                        <div class="card-header">
+                            <div class="profile-picture">
+                                {% if member.profile_picture %}
+                                    <img src="{{ member.profile_picture.url }}" alt="{{ member.full_name }}">
+                                {% else %}
+                                    <span class="avatar-placeholder">{{ member.first_name|make_list|first|upper }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="member-info">
+                                <h2>{{ member.full_name }}</h2>
+                                <p class="username">@{{ member.username }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <span class="stat-value">{{ member.problems_solved }}</span>
+                                <span class="stat-label">Problems</span>
+                            </div>
+                            {% if member.favorite_language %}
+                            <div class="language-badge">{{ member.get_favorite_language_display }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{% url 'members:member_detail' member.id %}" class="view-profile">
+                            View Full Profile
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                {% empty %}
+                    <div class="no-members">
+                        <p>No members found</p>
+                        <a href="{% url 'admin:index' %}" class="admin-link">Add members in admin</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
