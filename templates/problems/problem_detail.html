@@ -1,0 +1,69 @@
+{% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
+
+<div class="problem-page">
+    <!-- Problem Statement Section -->
+    <div class="problem-statement">
+        <h2>{{ problem.title }}</h2>
+        <p class="difficulty {{ problem.difficulty|lower }}">
+            Difficulty: {{ problem.difficulty }}
+        </p>
+        <div class="description">
+            {{ problem.description|linebreaks }}
+        </div>
+    </div>
+
+    <!-- Code Editor Section -->
+    <div class="code-editor-container">
+        <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="code-editor-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="language">Language:</label>
+                <select name="language" id="language" class="language-select">
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                    <option value="c">C</option>
+                    <option value="java">Java</option>
+                </select>
+            </div>
+
+            <textarea id="code" name="code"></textarea>
+
+            <div class="form-actions">
+                <button type="submit" name="action" value="run" class="btn-run">Run Code</button>
+                <button type="submit" name="action" value="submit" class="btn-submit">Submit Code</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CodeMirror Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
+
+<script>
+    const editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+        lineNumbers: true,
+        mode: 'python',
+        theme: 'dracula',
+        indentUnit: 4,
+        matchBrackets: true,
+        autoCloseBrackets: true
+    });
+
+    document.getElementById('language').addEventListener('change', function () {
+        const lang = this.value;
+        if (lang === 'python') {
+            editor.setOption('mode', 'python');
+        } else if (lang === 'java') {
+            editor.setOption('mode', 'text/x-java');
+        } else if (lang === 'cpp' || lang === 'c') {
+            editor.setOption('mode', 'text/x-c++src');
+        }
+    });
+</script>
