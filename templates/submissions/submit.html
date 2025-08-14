@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ problem.title }}</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label for="language">Select Language:</label>
+  <select name="language" id="language">
+    <option value="python">Python</option>
+    <option value="c">C</option>
+    <option value="cpp">C++</option>
+    <option value="java">Java</option>
+  </select><br><br>
+
+  <label for="code">Your Code:</label><br>
+  <textarea name="code" rows="20" cols="80"></textarea><br><br>
+
+  <button type="submit">Submit</button>
+</form>
+    
+{% endblock %}

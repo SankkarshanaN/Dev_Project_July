@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Submission Result</h2>
+
+<p><strong>Problem:</strong> {{ submission.problem.title }}</p>
+<p><strong>Submitted By:</strong> {{ submission.user.username }}</p>
+<p><strong>Language:</strong> {{ submission.language }}</p>
+<p><strong>Result:</strong> {{ submission.result }}</p>
+
+
+{% if submission.error %}
+<h3>Error:</h3>
+<pre>{{ submission.error }}</pre>
+{% endif %}
+
+<a href="{% url 'problem_detail' submission.problem.id %}">← Back to Problem</a>
+{% endblock %}

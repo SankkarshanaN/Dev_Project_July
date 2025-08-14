@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Online Judge{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="{% if request.path == '/accounts/login/' or request.path == '/accounts/register/' %}auth-page{% endif %}">
+
+{% if not request.path == '/accounts/login/' and not request.path == '/accounts/register/' %}
+<!-- Navbar -->
+<nav>
+    <div class="nav-left">
+        <ul>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'problem_list' %}">Problems</a></li>
+            <li><a href="{% url 'leaderboard' %}">Leaderboard</a></li>
+        </ul>
+    </div>
+    {% if user.is_authenticated %}
+        <div class="nav-right dropdown">
+            <button class="dropbtn">
+                <img src="{{ user.member.profile_picture.url }}" alt="Profile" class="profile-icon">
+            </button>
+            <div class="dropdown-content">
+                <a href="{% url 'profile' user.username %}">Profile</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="nav-right">
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+        </div>
+        {% endif %}
+
+</nav>
+{% endif %}
+
+<!-- Messages -->
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<!-- Main Content -->
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Optional JS for dropdown -->
+<script>
+document.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('.dropdown-content');
+    const button = document.querySelector('.dropbtn');
+    if (button && button.contains(event.target)) {
+        dropdown.classList.toggle('show');
+    } else {
+        dropdown.classList.remove('show');
+    }
+});
+</script>
+
+</body>
+</html>

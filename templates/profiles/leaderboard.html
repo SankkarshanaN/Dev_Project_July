@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Leaderboard</h2>
+<table>
+  <tr>
+    <th>Username</th>
+    <th>Problems Solved</th>
+    <th>Submissions</th>
+  </tr>
+  {% for member in members %}
+  <tr>
+    <td>{{ member.user.username }}</td>
+    <td>{{ member.problems_solved }}</td>
+    <td>{{ member.total_submissions }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
