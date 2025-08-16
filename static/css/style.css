@@ -1,148 +1,461 @@
-/* ===== General Reset ===== */
+/* ===== Global Reset ===== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 body {
-    font-family: "Segoe UI", Tahoma, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
+    background: #f7f8fc;
+    color: #222;
+    min-height: 100vh;
 }
 
 /* ===== Navbar ===== */
 .navbar {
-    background-color: #222;
-    padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 12px 25px;
+    background: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-.navbar a {
-    color: white;
+.nav-left a {
+    margin-right: 20px;
     text-decoration: none;
-    margin: 0 12px;
-    font-size: 1rem;
+    color: #ffffff;
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
 
-.navbar a:hover {
-    text-decoration: underline;
+.nav-left a:hover {
+    color: #ff9800;
 }
 
-/* ===== Problem Page Layout ===== */
-.problem-page {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    padding: 20px;
-    height: calc(100vh - 60px);
-}
-
-/* ===== Problem Statement ===== */
-.problem-statement {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    overflow-y: auto;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.problem-statement h2 {
-    margin-bottom: 10px;
-    font-size: 1.8em;
+.nav-left .logo {
+    font-size: 1.5rem;
     font-weight: bold;
+    background: linear-gradient(90deg, #ff9800, #ff5722, #e91e63);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 8px rgba(255, 87, 34, 0.4);
 }
 
-.problem-statement .difficulty {
-    font-weight: bold;
-    margin-bottom: 15px;
+.nav-right {
+    display: flex;
+    align-items: center;
 }
 
-.problem-statement .difficulty.easy { color: green; }
-.problem-statement .difficulty.medium { color: orange; }
-.problem-statement .difficulty.hard { color: red; }
-
-.problem-statement .description {
-    font-size: 1rem;
-    line-height: 1.6;
+/* ===== Profile Icon ===== */
+.profile-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: none;
+    box-shadow: none;
 }
 
-/* ===== Code Editor Section ===== */
-.code-editor-container {
-    background: white;
-    padding: 20px;
+.profile-icon:hover {
+    transform: scale(1.1);
+}
+
+/* ===== Dropdown ===== */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: #ffffff;
+    min-width: 180px;
+    z-index: 1001;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Reset form inside dropdown */
+.dropdown-content form {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+/* Unified items (links + buttons) */
+.dropdown-content a,
+.dropdown-content button {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #333;
+    background: none;
+    border: none;
+    border-radius: 0;
+    text-align: left;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 0;
+    box-shadow: none;
+    outline: none;
+}
+
+/* No hover effect (both remain steady) */
+.dropdown-content a:hover,
+.dropdown-content button:hover {
+    background: none;
+    color: #333;
+}
+
+.dropdown-content.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(4px);
+}
+
+/* ===== Dashboard ===== */
+.dashboard-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    background: #f7f8fc;
+    min-height: calc(100vh - 60px);
 }
 
-.language-select {
-    padding: 8px;
+.banner {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.banner-title {
+    font-size: 3rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, #ff9800, #ff5722, #e91e63);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 10px rgba(255, 87, 34, 0.3);
+}
+
+.banner-quote {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: #333;
+}
+
+.dashboard-card {
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: #333;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card h2 {
     margin-bottom: 10px;
+    color: #111;
+}
+
+.dashboard-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.dashboard-card li {
+    margin: 6px 0;
     font-size: 1rem;
-    border-radius: 5px;
+    color: #444;
+}
+
+.dashboard-card h3 {
+    margin-top: 15px;
+    color: #ff9800;
+}
+
+/* ===== Page Section Headings ===== */
+.page-container h2 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 20px 0 30px 0;
+    background: linear-gradient(90deg, #ff9800, #ff5722, #e91e63);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(255, 87, 34, 0.25);
+}
+
+/* ===== Tables (Problems + Leaderboard) ===== */
+.styled-table {
+    width: 80%;
+    margin: 40px auto;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    border-collapse: collapse;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.styled-table th {
+    background: #f2f2f2;
+    color: #ff9800;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.styled-table tr:hover {
+    background: #f9f9f9;
+}
+
+/* ===== Difficulty Labels ===== */
+.difficulty {
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+.difficulty.easy {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.difficulty.medium {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.difficulty.hard {
+    background: #ffebee;
+    color: #c62828;
+}
+
+/* ===== Forms (Login/Register/Submit) ===== */
+form {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    margin: 40px auto;
+    color: #333;
+}
+
+form input,
+form select,
+form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background: #f9f9f9;
     border: 1px solid #ccc;
+    border-radius: 8px;
+    color: #222;
 }
 
-/* ===== CodeMirror ===== */
-.CodeMirror {
-    height: 400px;
-    font-size: 14px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-}
-
-/* ===== Buttons ===== */
-.form-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-run, .btn-submit {
-    padding: 10px 20px;
+form button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #ff9800, #ff5722, #e91e63);
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 8px;
+    color: #fff;
     font-size: 1rem;
     font-weight: bold;
-    transition: background-color 0.2s ease-in-out;
+    cursor: pointer;
+    transition: transform 0.2s ease;
 }
 
-.btn-run {
-    background-color: #3498db;
+form button:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Messages ===== */
+.messages {
+    width: 60%;
+    margin: 20px auto;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.message.success {
+    background: #c8e6c9;
+    color: #2e7d32;
+}
+
+.message.error {
+    background: #ffcdd2;
+    color: #c62828;
+}
+
+.message.info {
+    background: #bbdefb;
+    color: #1565c0;
+}
+/* ===== Custom Input / Output Section ===== */
+.custom-io-container {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fafafa;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.custom-io-container h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: #333;
+    font-weight: 600;
+}
+
+#custom-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-family: monospace;
+    font-size: 14px;
+    margin-bottom: 1rem;
+    resize: vertical;
+}
+
+#run-custom-btn {
+    background: #ff9800;
     color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
 }
 
-.btn-run:hover {
-    background-color: #2980b9;
+#run-custom-btn:hover {
+    background: #e68900;
 }
 
-.btn-submit {
-    background-color: #27ae60;
-    color: white;
+.output-container {
+    margin-top: 1rem;
+    background: #1e1e1e;
+    color: #f1f1f1;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 14px;
+    max-height: 250px;
+    overflow-y: auto;
 }
 
-.btn-submit:hover {
-    background-color: #1e8449;
+.output-container h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #ff9800;
+}
+.submission-card {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* ===== Scrollbars ===== */
-.problem-statement::-webkit-scrollbar,
-.code-editor-container::-webkit-scrollbar {
-    width: 8px;
+.code-block {
+  background: #272822;
+  color: white;
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
 }
 
-.problem-statement::-webkit-scrollbar-thumb,
-.code-editor-container::-webkit-scrollbar-thumb {
-    background-color: #bbb;
-    border-radius: 4px;
+.tab-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
-.problem-statement::-webkit-scrollbar-thumb:hover,
-.code-editor-container::-webkit-scrollbar-thumb:hover {
-    background-color: #888;
+.tab-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #e0e0e0;
+  font-weight: bold;
+}
+
+.tab-panel {
+  margin-top: 1rem;
+}
+
+.io-block {
+  background: #f8f9fa;
+  padding: 0.8rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.io-block.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.io-block.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.hidden {
+  display: none;
+}
+.passed {
+    background-color: #e8f5e9;
+}
+.failed {
+    background-color: #ffebee;
 }

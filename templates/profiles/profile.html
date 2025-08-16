@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}{{ profile_user.username }}'s Profile{% endblock %}
+
 {% block content %}
-<div class="profile-container">
-    <img class="profile-pic" src="{% if member.profile_picture %}{{ member.profile_picture.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}" alt="Profile Picture">
-    
+<div class="card profile-container" style="text-align:center;">
+    <img class="profile-pic" 
+         src="{% if member.profile_picture %}{{ member.profile_picture.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}" 
+         alt="Profile Picture"
+         style="width:100px; height:100px; border-radius:50%; border:3px solid #ff9800;">
+
     <h2>{{ profile_user.username }}</h2>
 
     {% if request.user == profile_user and form %}
-    <div class="upload-form">
+    <div class="upload-form" style="margin-top:10px;">
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.profile_picture }}
@@ -18,7 +23,7 @@
     </div>
     {% endif %}
 
-    <div class="profile-stats">
+    <div class="profile-stats" style="margin-top:15px; text-align:left; display:inline-block;">
         <p><span class="label">Joined:</span> {{ member.join_date|date:"F d, Y" }}</p>
         <p><span class="label">Problems Solved:</span> {{ member.problems_solved }}</p>
         <p><span class="label">Total Submissions:</span> {{ member.total_submissions }}</p>

@@ -1,18 +1,32 @@
 {% extends "base.html" %}
+{% block title %}Leaderboard{% endblock %}
+
 {% block content %}
-<h2>Leaderboard</h2>
-<table>
-  <tr>
-    <th>Username</th>
-    <th>Problems Solved</th>
-    <th>Submissions</th>
-  </tr>
-  {% for member in members %}
-  <tr>
-    <td>{{ member.user.username }}</td>
-    <td>{{ member.problems_solved }}</td>
-    <td>{{ member.total_submissions }}</td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="page-container">
+    <h2>🏆 Leaderboard</h2>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Problems Solved</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profile in leaderboard %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ profile.username }}</td>
+                <td>{{ profile.problems_solved|default:0 }}</td>
+                <td>{{ profile.points|default:0 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No leaderboard data yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

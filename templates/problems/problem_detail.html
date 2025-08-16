@@ -1,24 +1,70 @@
+{% extends "base.html" %}
 {% load static %}
+
+{% block title %}{{ problem.title }}{% endblock %}
+
+{% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
+<link rel="stylesheet" href="{% static 'css/custom-io.css' %}">
 
-<div class="problem-page">
+<div class="card problem-page" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+
     <!-- Problem Statement Section -->
-    <div class="problem-statement">
+    <div class="problem-statement" style="flex: 1; min-width: 300px;">
         <h2>{{ problem.title }}</h2>
         <p class="difficulty {{ problem.difficulty|lower }}">
             Difficulty: {{ problem.difficulty }}
         </p>
-        <div class="description">
-            {{ problem.description|linebreaks }}
+
+        {% if problem.description %}
+        <div>
+            <h3>Description</h3>
+            <p>{{ problem.description|linebreaks }}</p>
         </div>
+        {% endif %}
+
+        {% if problem.input_format %}
+        <div>
+            <h3>Input Format</h3>
+            <pre>{{ problem.input_format }}</pre>
+        </div>
+        {% endif %}
+
+        {% if problem.output_format %}
+        <div>
+            <h3>Output Format</h3>
+            <pre>{{ problem.output_format }}</pre>
+        </div>
+        {% endif %}
+
+        {% if problem.constraints %}
+        <div>
+            <h3>Constraints</h3>
+            <pre>{{ problem.constraints }}</pre>
+        </div>
+        {% endif %}
+
+        <!-- 🔹 Show only sample test cases -->
+        {% if sample_test_cases %}
+        <div>
+            <h3>Sample Test Cases</h3>
+            {% for case in sample_test_cases %}
+                <div class="testcase" style="margin-bottom: 1rem;">
+                    <strong>Input:</strong>
+                    <pre>{{ case.input_data }}</pre>
+                    <strong>Output:</strong>
+                    <pre>{{ case.output_data }}</pre>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- Code Editor Section -->
-    <div class="code-editor-container">
+    <div class="code-editor-container" style="flex: 1; min-width: 300px;">
         <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="code-editor-form">
             {% csrf_token %}
-
             <div class="form-group">
                 <label for="language">Language:</label>
                 <select name="language" id="language" class="language-select">
@@ -29,13 +75,31 @@
                 </select>
             </div>
 
+            <!-- CodeMirror will attach here -->
             <textarea id="code" name="code"></textarea>
 
-            <div class="form-actions">
+            <div class="form-actions" style="margin-top: 1rem;">
                 <button type="submit" name="action" value="run" class="btn-run">Run Code</button>
                 <button type="submit" name="action" value="submit" class="btn-submit">Submit Code</button>
             </div>
         </form>
+
+        <!-- 🔹 Custom Input/Output Section -->
+        <div class="custom-io-container">
+            <h3>Custom Input / Output</h3>
+
+            <!-- Input -->
+            <textarea id="custom-input" placeholder="Enter your input here..."></textarea>
+
+            <!-- Run Button -->
+            <button id="run-custom-btn">Run with Custom Input</button>
+
+            <!-- Output -->
+            <div class="output-container">
+                <h4>Output:</h4>
+                <pre id="custom-output"></pre>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -47,23 +111,45 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
 
 <script>
-    const editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+    // Setup CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        mode: 'python',
-        theme: 'dracula',
-        indentUnit: 4,
+        mode: "python",
+        theme: "dracula",
         matchBrackets: true,
-        autoCloseBrackets: true
+        autoCloseBrackets: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: true,
     });
 
-    document.getElementById('language').addEventListener('change', function () {
-        const lang = this.value;
-        if (lang === 'python') {
-            editor.setOption('mode', 'python');
-        } else if (lang === 'java') {
-            editor.setOption('mode', 'text/x-java');
-        } else if (lang === 'cpp' || lang === 'c') {
-            editor.setOption('mode', 'text/x-c++src');
-        }
+    // Pass values into Django form on submit
+    document.querySelector(".code-editor-form").addEventListener("submit", function () {
+        document.getElementById("code").value = editor.getValue();
+    });
+
+    // Custom Run button
+    const runBtn = document.getElementById("run-custom-btn");
+    runBtn.addEventListener("click", async function () {
+        const code = editor.getValue();
+        const language = document.getElementById("language").value;
+        const customInput = document.getElementById("custom-input").value;
+
+        const response = await fetch("{% url 'submissions:run_custom' problem.id %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                code: code,
+                language: language,
+                custom_input: customInput
+            })
+        });
+
+        const result = await response.json();
+        document.getElementById("custom-output").textContent = result.output || result.error || "No output.";
     });
 </script>
+{% endblock %}

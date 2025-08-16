@@ -10,4 +10,8 @@ def problem_list(request):
 @login_required
 def problem_detail(request, pk):
     problem = get_object_or_404(Problem, pk=pk)
-    return render(request, 'problems/problem_detail.html', {'problem': problem})
+    sample_test_cases = problem.test_cases.filter(is_sample=True)  # only samples
+    return render(request, "problems/problem_detail.html", {
+        "problem": problem,
+        "sample_test_cases": sample_test_cases,
+    })

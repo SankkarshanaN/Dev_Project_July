@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import ProfilePictureForm
 from .models import Member
+from django.db.models import Count, Sum, Case, When, IntegerField
 from django.contrib.auth.models import User
+from submissions.models import Submission, Problem
 
 @login_required
 def profile_view(request, username):
@@ -33,5 +35,56 @@ def profile_view(request, username):
     return render(request, 'profiles/profile.html', context)
 
 def leaderboard(request):
-    members = Member.objects.all().order_by('-problems_solved', '-total_submissions')
-    return render(request, 'profiles/leaderboard.html', {'members': members})
+    # Distinct accepted problems
+    user_problem_map = (
+        Submission.objects.filter(result="Accepted")
+        .values("user", "user__username", "problem")  # also pull username
+        .distinct()
+    )
+
+    # Problem → points mapping
+    problem_points = dict(
+        Problem.objects.values_list(
+            "id",
+            Case(
+                When(difficulty="Easy", then=10),
+                When(difficulty="Medium", then=20),
+                When(difficulty="Hard", then=30),
+                default=0,
+                output_field=IntegerField(),
+            ),
+        )
+    )
+
+    leaderboard_data = {}
+    for entry in user_problem_map:
+        uid, username, pid = entry["user"], entry["user__username"], entry["problem"]
+        points = problem_points.get(pid, 0)
+
+        if uid not in leaderboard_data:
+            leaderboard_data[uid] = {
+                "username": username,
+                "points": 0,
+                "problems_solved": 0,
+            }
+
+        leaderboard_data[uid]["points"] += points
+        leaderboard_data[uid]["problems_solved"] += 1
+
+    leaderboard = [
+        {
+            "username": data["username"],
+            "points": data["points"],
+            "problems_solved": data["problems_solved"],
+        }
+        for uid, data in leaderboard_data.items()
+    ]
+
+    # Sort and limit to top 10
+    leaderboard = sorted(
+        leaderboard,
+        key=lambda x: (x["points"], x["problems_solved"]),
+        reverse=True,
+    )[:10]
+
+    return render(request, "profiles/leaderboard.html", {"leaderboard": leaderboard})
