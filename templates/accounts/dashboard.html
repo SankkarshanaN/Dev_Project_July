@@ -1,5 +1,30 @@
 {% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
 {% block content %}
-<h2>Welcome to the Online Judge!</h2>
-<p>Choose a problem from the Problems tab to get started.</p>
+<div class="dashboard-container">
+
+    <!-- Banner -->
+    <div class="banner">
+        <h1 class="banner-title">🚀 Welcome to <span>CodeFun</span></h1>
+        <p class="banner-quote">“Eat. Sleep. Code. Repeat.”</p>
+    </div>
+
+    <!-- Stats / Progress Summary -->
+    <div class="dashboard-card">
+        <h2>Welcome, {{ user.username }} 👋</h2>
+        <p>Here's your quick progress summary:</p>
+        <ul>
+            <li>🧩 Problems Solved: <strong>{{ problems_solved|default:0 }}</strong></li>
+            <li>⭐ Points: <strong>{{ points|default:0 }}</strong></li>
+        </ul>
+        <h3>▶️ Continue where you left off</h3>
+        {% if recent_activity %}
+            <p>{{ recent_activity }}</p>
+        {% else %}
+            <p>No recent activity yet. Start solving problems!</p>
+        {% endif %}
+    </div>
+
+</div>
 {% endblock %}

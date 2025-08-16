@@ -7,4 +7,5 @@ urlpatterns = [
     path('logout/', views.custom_logout, name='logout'),            # custom logout
     path('register/', views.register, name='register'),             # optional
     path('dashboard/', views.dashboard, name='dashboard'),
+    
 ]

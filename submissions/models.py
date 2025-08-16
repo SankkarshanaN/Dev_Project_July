@@ -20,3 +20,25 @@ class Submission(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.problem.title} - {self.language}"
+    
+class SubmissionResult(models.Model):
+    submission = models.ForeignKey(
+        Submission,
+        related_name="results",
+        on_delete=models.CASCADE
+    )
+    test_case = models.ForeignKey(
+        "problems.TestCase",
+        on_delete=models.CASCADE,
+        null=True,   # ✅ allow NULLs for old rows
+        blank=True   # ✅ not required in admin forms
+    )
+    user_output = models.TextField()
+    passed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return (
+            f"Submission {self.submission.id} - "
+            f"TestCase {self.test_case.id if self.test_case else 'N/A'} - "
+            f"{'Passed' if self.passed else 'Failed'}"
+        )

@@ -1,14 +1,28 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% block title %}Problems{% endblock %}
+
 {% block content %}
-<h2>Problem List</h2>
-<ul>
-  {% for problem in problems %}
-    <li>
-      <a href="{% url 'problem_detail' problem.pk %}">{{ problem.title }}</a>
-      ({{ problem.difficulty }})
-    </li>
-  {% empty %}
-    <li>No problems available yet.</li>
-  {% endfor %}
-</ul>
+<div class="page-container">
+    <h2>📝 Problems</h2>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Difficulty</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for problem in problems %}
+            <tr>
+                <td><a href="{% url 'problem_detail' problem.id %}">{{ problem.title }}</a></td>
+                <td>{{ problem.difficulty }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No problems available yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
