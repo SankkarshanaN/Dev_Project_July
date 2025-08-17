@@ -1,32 +1,37 @@
-# 🧑‍⚖️ Online Judge Platform
+# 🧑‍⚖️ Django Online Judge
 
-A Django-based **Online Judge** system where users can submit code, run against test cases, and view results in real-time.  
-This project also integrates AI (Google Generative AI) for assistance and includes Docker support for deployment.
+A full-stack **Online Judge system** built with Django.  
+Users can register, solve coding problems, submit solutions, and view results instantly.  
+This platform also supports AI-assisted guidance and is ready for Docker-based deployment.
 
 ---
 
 ## 🚀 Features
-- User authentication & profiles
-- Problem statements with input/output test cases
-- Code submission & evaluation
-- Real-time feedback on correctness
-- Leaderboard & submission history
-- AI-assisted coding help (via Google GenAI)
-- Admin panel for managing problems & users
-- Dockerized for easy deployment
+- 👤 **User Accounts** (login, signup, profiles)
+- 📚 **Problem Management** (create, edit, list coding problems)
+- 📝 **Submissions** (run code, evaluate against test cases)
+- 📊 **Profiles & Leaderboard**
+- 🎨 **Frontend** with Django Templates + CSS (in `static/`)
+- 🖼 **Media support** for user uploads
+- 🐳 **Dockerized** for easy deployment
+- ⚡ **AI integration** (Google Generative AI for hints/assistance)
 
 ---
 
 ## 📂 Project Structure
 ```
 online_judge/
-│── problems/         # App for problem statements
-│── submissions/      # App for code submissions
-│── users/            # App for authentication & profiles
-│── templates/        # HTML templates
-│── static/           # Static assets (CSS, JS, images)
-│── media/            # User-uploaded files (ignored in git)
-│── manage.py
+│── accounts/        # Authentication & user management
+│── problems/        # Problem statements & test cases
+│── submissions/     # Submission handling & evaluation
+│── profiles/        # User profiles & leaderboard
+│── templates/       # HTML templates
+│── static/          # CSS, JS, images
+│── media/           # User-uploaded files (ignored in git)
+│── online_judge/    # Core Django project settings
+│── manage.py        # Django management script
+│── requirements.txt # Python dependencies
+│── Dockerfile       # Docker support
 ```
 
 ---
@@ -36,7 +41,7 @@ online_judge/
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/SankkarshanaN/Dev_Project_July.git
-cd Dev_Project_July
+cd Dev_Project_July/online_judge
 ```
 
 ### 2. Create a virtual environment & install dependencies
@@ -48,23 +53,31 @@ venv\Scripts\activate      # (Windows)
 pip install -r requirements.txt
 ```
 
-### 3. Apply migrations & create superuser
+### 3. Setup environment variables
+Create a `.env` file in the root folder:
+```ini
+SECRET_KEY=your_django_secret_key
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+```
+
+### 4. Apply migrations & create superuser
 ```bash
 python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 4. Run the development server
+### 5. Run the development server
 ```bash
 python manage.py runserver
 ```
 
-The app will be available at: `http://127.0.0.1:8000/`
+Visit: `http://127.0.0.1:8000/` 🎉
 
 ---
 
 ## 🐳 Docker Setup
-Build & run with Docker:
+Build & run using Docker:
 ```bash
 docker build -t online-judge .
 docker run -p 8000:8000 online-judge
@@ -72,12 +85,18 @@ docker run -p 8000:8000 online-judge
 
 ---
 
-
-## 🤝 Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to improve.
+## 📸 Screenshots (to be added)
+- Problem listing page
+- Submission form & results
+- User profile & leaderboard
 
 ---
 
-## 📜 License
-This project is licensed under the MIT License.  
-Feel free to use and modify for your own projects.
+## 🤝 Contributing
+Contributions are welcome!  
+1. Fork the repo  
+2. Create a feature branch  
+3. Commit changes  
+4. Open a Pull Request  
+
+---
