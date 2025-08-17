@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments (any depth)
+**/env/
+**/venv/
+.env
+.venv
+
+# Django / Python
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static/
+
+# Project IDE/editor
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Packaging / build
+build/
+dist/
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+wheels/
+MANIFEST
+
+# Test & coverage
+htmlcov/
+.tox/
+.nox/
+.coverage*
+.cache/
+.pytest_cache/
+
+# MyPy / Pyre / Pytype
+.mypy_cache/
+.pyre/
+.pytype/
+
+# Node (if any front-end)
+node_modules/
+
+# Docker
+*.pid
+*.seed
+.dockerignore
