@@ -63,6 +63,7 @@ ALLOWED_HOSTS=127.0.0.1,localhost
 
 ### 4. Apply migrations & create superuser
 ```bash
+python manage.py makemigrations
 python manage.py migrate
 python manage.py createsuperuser
 ```
