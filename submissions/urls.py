@@ -8,5 +8,6 @@ urlpatterns = [
     path('<int:submission_id>/', views.submission_detail, name='submission_detail'),
      # 🔹 Custom Input/Output runner
     path("run_custom/<int:problem_id>/", views.run_custom, name="run_custom"),
+    path("ai-hint/<int:problem_id>/", views.ai_hint, name="ai_hint"),
    
 ]

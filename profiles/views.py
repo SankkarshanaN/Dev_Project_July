@@ -5,6 +5,8 @@ from .models import Member
 from django.db.models import Count, Sum, Case, When, IntegerField
 from django.contrib.auth.models import User
 from submissions.models import Submission, Problem
+from django.db.models import Count
+
 
 @login_required
 def profile_view(request, username):
@@ -20,17 +22,21 @@ def profile_view(request, username):
     else:
         form = ProfilePictureForm(instance=member) if profile_user == request.user else None
 
-    # Calculate success rate safely
-    if member.total_submissions > 0:
-        success_rate = round((member.problems_solved / member.total_submissions) * 100, 2)
-    else:
-        success_rate = 0.0
+    # 🟢 Find favorite language from submissions
+    favorite_lang = (
+        Submission.objects.filter(user=profile_user)
+        .values("language")
+        .annotate(total=Count("id"))
+        .order_by("-total")
+        .first()
+    )
 
     context = {
         'profile_user': profile_user,
         'member': member,
         'form': form,
-        'success_rate': success_rate,
+        "favorite_language": favorite_lang["language"] if favorite_lang else None,
+        
     }
     return render(request, 'profiles/profile.html', context)
 

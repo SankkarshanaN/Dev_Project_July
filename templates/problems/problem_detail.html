@@ -4,14 +4,169 @@
 {% block title %}{{ problem.title }}{% endblock %}
 
 {% block content %}
+<!-- CodeMirror CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
-<link rel="stylesheet" href="{% static 'css/custom-io.css' %}">
 
-<div class="card problem-page" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+<style>
+    /* === Layout === */
+    .problem-page {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        padding: 1rem;
+    }
 
-    <!-- Problem Statement Section -->
-    <div class="problem-statement" style="flex: 1; min-width: 300px;">
+    /* === Problem Statement === */
+    .problem-statement {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .problem-statement h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #ff9800, #ff5722);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 2px 2px 6px rgba(0,0,0,0.25);
+        letter-spacing: 1px;
+    }
+
+    .problem-statement h3 {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .difficulty.easy { color: green; font-weight: bold; }
+    .difficulty.medium { color: orange; font-weight: bold; }
+    .difficulty.hard { color: red; font-weight: bold; }
+
+    .testcase pre,
+    .problem-statement pre {
+        background: #f8f8f8;
+        padding: 8px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+
+    /* === Toggle Submissions === */
+    .toggle-btn {
+        margin-top: 1rem;
+        background: #ff9800;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    .toggle-btn:hover {
+        background: #e68900;
+    }
+    .submissions.hidden {
+        display: none;
+    }
+    .submissions ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    .submission {
+        background: #f4f4f4;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 0.8rem;
+    }
+
+    /* === Code Editor === */
+    .code-editor-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .CodeMirror {
+        border-radius: 8px;
+        min-height: 300px;
+        font-size: 14px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+
+    /* === Buttons === */
+    .btn-run, .btn-submit, .btn-hint {
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .btn-run { background: #03a9f4; color: #fff; }
+    .btn-run:hover { background: #0288d1; }
+    .btn-submit { background: #4caf50; color: #fff; }
+    .btn-submit:hover { background: #388e3c; }
+    .btn-hint { background: #ff9800; color: #fff; }
+    .btn-hint:hover { background: #e68900; }
+
+    /* === Custom Input/Output === */
+    .custom-io-container {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    #custom-input {
+        width: 100%;
+        min-height: 80px;
+        border-radius: 6px;
+        margin-bottom: 0.8rem;
+        padding: 8px;
+        font-family: monospace;
+        border: 1px solid #ddd;
+    }
+    #run-custom-btn {
+        background: #673ab7;
+        color: #fff;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    #run-custom-btn:hover {
+        background: #512da8;
+    }
+    .output-container {
+        margin-top: 0.8rem;
+        background: #000;
+        color: #0f0;
+        padding: 10px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 14px;
+    }
+</style>
+
+<div class="card problem-page">
+
+    <!-- Problem Statement -->
+    <div class="problem-statement">
         <h2>{{ problem.title }}</h2>
         <p class="difficulty {{ problem.difficulty|lower }}">
             Difficulty: {{ problem.difficulty }}
@@ -45,12 +200,11 @@
         </div>
         {% endif %}
 
-        <!-- 🔹 Show only sample test cases -->
         {% if sample_test_cases %}
         <div>
             <h3>Sample Test Cases</h3>
             {% for case in sample_test_cases %}
-                <div class="testcase" style="margin-bottom: 1rem;">
+                <div class="testcase">
                     <strong>Input:</strong>
                     <pre>{{ case.input_data }}</pre>
                     <strong>Output:</strong>
@@ -59,10 +213,36 @@
             {% endfor %}
         </div>
         {% endif %}
+
+        {% if previous_submissions %}
+        <button class="toggle-btn" onclick="toggleSubmissions()">Show/Hide Previous Submissions</button>
+        <div id="submissions-panel" class="submissions hidden">
+            <ul>
+                {% for sub in previous_submissions %}
+                <li class="submission">
+                    <strong>{{ sub.language }}</strong> 
+                    ({{ sub.submitted_at|date:"Y-m-d H:i" }})
+                    {% if sub.result == "Accepted" %}
+                        <span style="color:green;">✅ Accepted</span>
+                    {% elif sub.result == "Wrong Answer" %}
+                        <span style="color:red;">❌ Wrong Answer</span>
+                    {% elif sub.result == "Runtime Error" %}
+                        <span style="color:orange;">⚠️ Runtime Error</span>
+                    {% elif sub.result == "Time Limit Exceeded" %}
+                        <span style="color:purple;">⏳ Time Limit Exceeded</span>
+                    {% else %}
+                        <span style="color:gray;">{{ sub.result }}</span>
+                    {% endif %}
+                    <pre>{{ sub.code|truncatechars:120 }}</pre>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Code Editor Section -->
-    <div class="code-editor-container" style="flex: 1; min-width: 300px;">
+    <!-- Code Editor -->
+    <div class="code-editor-container">
         <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="code-editor-form">
             {% csrf_token %}
             <div class="form-group">
@@ -75,26 +255,30 @@
                 </select>
             </div>
 
-            <!-- CodeMirror will attach here -->
             <textarea id="code" name="code"></textarea>
 
-            <div class="form-actions" style="margin-top: 1rem;">
+            <div class="form-actions">
                 <button type="submit" name="action" value="run" class="btn-run">Run Code</button>
                 <button type="submit" name="action" value="submit" class="btn-submit">Submit Code</button>
+                <button type="button" id="btn-ai-hint" class="btn-hint">💡 Get AI Hint</button>
+                <span id="ai-hint-loading" style="display:none;">⏳ Loading...</span>
+                <span id="ai-hint-remaining">
+                    Hints left: {{ remaining_hints }} (resets in {{ reset_in_hours }} hrs)
+                </span>
             </div>
         </form>
 
-        <!-- 🔹 Custom Input/Output Section -->
+        <!-- AI Hint -->
+        <div id="ai-hint-box" style="display:none; border:1px solid #ccc; padding:10px; border-radius:5px; background:#f8f8f8;">
+            <h4>AI Hint:</h4>
+            <pre id="ai-hint-text"></pre>
+        </div>
+
+        <!-- Custom I/O -->
         <div class="custom-io-container">
             <h3>Custom Input / Output</h3>
-
-            <!-- Input -->
             <textarea id="custom-input" placeholder="Enter your input here..."></textarea>
-
-            <!-- Run Button -->
             <button id="run-custom-btn">Run with Custom Input</button>
-
-            <!-- Output -->
             <div class="output-container">
                 <h4>Output:</h4>
                 <pre id="custom-output"></pre>
@@ -111,7 +295,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
 
 <script>
-    // Setup CodeMirror
+    // === CodeMirror Setup ===
     const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "python",
@@ -123,14 +307,19 @@
         indentWithTabs: true,
     });
 
-    // Pass values into Django form on submit
+    // Sync CodeMirror with form submission
     document.querySelector(".code-editor-form").addEventListener("submit", function () {
         document.getElementById("code").value = editor.getValue();
     });
 
-    // Custom Run button
-    const runBtn = document.getElementById("run-custom-btn");
-    runBtn.addEventListener("click", async function () {
+    // Toggle Submissions
+    function toggleSubmissions() {
+        const panel = document.getElementById("submissions-panel");
+        panel.classList.toggle("hidden");
+    }
+
+    // Custom Run
+    document.getElementById("run-custom-btn").addEventListener("click", async function () {
         const code = editor.getValue();
         const language = document.getElementById("language").value;
         const customInput = document.getElementById("custom-input").value;
@@ -141,15 +330,68 @@
                 "X-CSRFToken": "{{ csrf_token }}",
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: new URLSearchParams({
-                code: code,
-                language: language,
-                custom_input: customInput
-            })
+            body: new URLSearchParams({ code, language, custom_input: customInput })
         });
 
         const result = await response.json();
         document.getElementById("custom-output").textContent = result.output || result.error || "No output.";
+    });
+
+    // AI Hint
+    const btn = document.getElementById('btn-ai-hint');
+    const loading = document.getElementById('ai-hint-loading');
+    const hintBox = document.getElementById('ai-hint-box');
+    const hintText = document.getElementById('ai-hint-text');
+    const hintRemaining = document.getElementById('ai-hint-remaining');
+    let defaultResetHours = JSON.parse("{{ reset_in_hours|default:0|escapejs }}");
+
+    btn.addEventListener('click', async () => {
+        const code = editor.getValue();
+        const language = document.getElementById('language').value;
+
+        if (!code.trim()) {
+            hintBox.style.display = 'block';
+            hintText.textContent = "Please enter some code first.";
+            hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+        }
+
+        btn.disabled = true;
+        loading.style.display = 'inline';
+
+        try {
+            const res = await fetch("{% url 'submissions:ai_hint' problem.id %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({ code, language })
+            });
+
+            const data = await res.json();
+            hintBox.style.display = 'block';
+
+            if (res.ok && data.hint) {
+                hintText.textContent = data.hint;
+                if (data.remaining_hints !== undefined) {
+                    const reset = data.reset_in_hours !== undefined ? data.reset_in_hours : defaultResetHours;
+                    hintRemaining.textContent = "Hints left: " + data.remaining_hints + " (resets in " + reset + " hrs)";
+                }
+            } else {
+                hintText.textContent = data.error || "Sorry, couldn't generate a hint right now.";
+            }
+
+            hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        } catch (err) {
+            hintBox.style.display = 'block';
+            hintText.textContent = "Network error. Please try again.";
+            hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
+        } finally {
+            btn.disabled = false;
+            loading.style.display = 'none';
+        }
     });
 </script>
 {% endblock %}

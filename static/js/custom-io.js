@@ -1,12 +1,19 @@
-// Initialize CodeMirror
-const editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+// Setup CodeMirror
+const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true,
-    mode: 'python',
-    theme: 'dracula',
-    indentUnit: 4,
+    mode: "python",
+    theme: "dracula",
     matchBrackets: true,
-    autoCloseBrackets: true
+    autoCloseBrackets: true,
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: true,
 });
+
+// force bigger size
+editor.setSize("100%", "500px");
+
+
 
 // Change mode when language changes
 document.getElementById('language').addEventListener('change', function () {
