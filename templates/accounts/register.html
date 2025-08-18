@@ -16,7 +16,6 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    /* Title + slogan */
     .site-title {
       display: flex;
       flex-direction: column;
@@ -43,15 +42,14 @@
       margin-top: 0.5rem;
     }
 
-    /* Register box */
     .login-box {
       background: rgba(255, 255, 255, 0.1);
-      padding: 2rem 2.2rem;    /* equal spacing left/right */
+      padding: 2rem 2.2rem;
       border-radius: 15px;
       box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
       width: 350px;
       text-align: center;
-      box-sizing: border-box;  /* ensures padding doesn't overflow */
+      box-sizing: border-box;
     }
 
     .login-box h2 {
@@ -69,7 +67,7 @@
       border-radius: 8px;
       font-size: 1rem;
       outline: none;
-      box-sizing: border-box; /* keeps inputs aligned evenly */
+      box-sizing: border-box;
     }
 
     .login-box button {
@@ -106,42 +104,58 @@
       text-decoration: underline;
     }
 
-    /* Password rules */
     .password-rules {
       text-align: left;
       font-size: 0.8rem;
       color: #f0f0f0;
       margin-top: -5px;
       margin-bottom: 10px;
-      padding-left: 18px;  /* makes bullets align neatly */
+      padding-left: 18px;
     }
     .password-rules li {
       margin-bottom: 3px;
     }
+
+    .errorlist {
+      color: #ffcccc;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+      list-style: none;
+      padding: 0;
+    }
   </style>
 </head>
 <body>
-  <!-- Title -->
   <div class="site-title">
     <h1>🚀 CODEFUN</h1>
     <p>Practice · Compete · Improve</p>
   </div>
 
-  <!-- Register Box -->
   <div class="login-box">
     <h2>Register</h2>
-    <form>
-      <input type="text" placeholder="Username" required>
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Password" required>
-      <!-- Password rules -->
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      {{ form.username.errors }}
+      {{ form.username }}
+
+      {{ form.email.errors }}
+      {{ form.email }}
+
+      {{ form.password1.errors }}
+      {{ form.password1 }}
+      
       <ul class="password-rules">
         <li>At least 8 characters</li>
         <li>One uppercase & one lowercase</li>
         <li>At least 1 number</li>
         <li>At least 1 special character (!@#$%)</li>
       </ul>
-      <input type="password" placeholder="Confirm Password" required>
+
+      {{ form.password2.errors }}
+      {{ form.password2 }}
+
       <button type="submit">Register</button>
     </form>
     <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>

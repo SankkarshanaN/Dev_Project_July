@@ -27,3 +27,10 @@ class CustomRegisterForm(UserCreationForm):
             "placeholder": "Confirm password",
             "class": "form-control"
         })
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user
