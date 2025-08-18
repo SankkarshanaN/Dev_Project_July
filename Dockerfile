@@ -1,27 +1,36 @@
-FROM python:3.10-slim
+FROM python:3.11-slim AS base
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV DJANGO_SETTINGS_MODULE=online_judge.settings
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PORT=8000
+
+# System deps
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential \
+      libpq-dev \
+      libjpeg62-turbo-dev \
+      zlib1g-dev \
+      curl \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    g++ \
-    openjdk-17-jdk-headless \
-    python3-dev \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install Python deps
+COPY requirements.txt /app/requirements.txt
+RUN python -m pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt \
+ && pip install --no-cache-dir gunicorn whitenoise dj-database-url "psycopg[binary]"
 
-RUN pip install --upgrade pip
+# Copy project
+COPY . /app
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
+# Default to your Django project
+ARG DJANGO_PROJECT=online_judge
+ENV DJANGO_SETTINGS_MODULE=${DJANGO_PROJECT}.settings
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+# Run migrations + collectstatic at runtime, then serve
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn ${DJANGO_PROJECT}.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
