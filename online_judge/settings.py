@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")  # Optional: for local development
@@ -66,17 +67,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'online_judge.wsgi.application'
 
-# ✅ Database (default: SQLite, but can switch to Postgres in Render)
+# Default: SQLite (local dev)
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get("DB_ENGINE", "django.db.backends.sqlite3"),
-        'NAME': os.environ.get("DB_NAME", BASE_DIR / "db.sqlite3"),
-        'USER': os.environ.get("DB_USER", ""),
-        'PASSWORD': os.environ.get("DB_PASSWORD", ""),
-        'HOST': os.environ.get("DB_HOST", ""),
-        'PORT': os.environ.get("DB_PORT", ""),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Override with Postgres if DATABASE_URL is set (Render/production)
+if os.getenv("DATABASE_URL"):
+    DATABASES['default'] = dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 
 # ✅ Password validation
 AUTH_PASSWORD_VALIDATORS = [

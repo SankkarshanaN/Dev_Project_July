@@ -20,8 +20,7 @@ WORKDIR /app
 # Install Python deps
 COPY requirements.txt /app/requirements.txt
 RUN python -m pip install --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir gunicorn whitenoise dj-database-url "psycopg[binary]"
+ && pip install --no-cache-dir -r requirements.txt
 
 # Copy project
 COPY . /app
@@ -32,15 +31,15 @@ ENV DJANGO_SETTINGS_MODULE=${DJANGO_PROJECT}.settings
 
 EXPOSE 8000
 
-# Run migrations, collectstatic, create superuser (if not exists), then start Gunicorn
+# Run migrations, collectstatic, create superuser, then start Gunicorn
 CMD ["sh", "-c", "python manage.py migrate --noinput && \
 python manage.py collectstatic --noinput && \
 python manage.py shell -c \"import os; \
 from django.contrib.auth import get_user_model; \
 User = get_user_model(); \
-username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin'); \
-email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com'); \
-password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'adminpass'); \
+username = os.environ['DJANGO_SUPERUSER_USERNAME']; \
+email = os.environ['DJANGO_SUPERUSER_EMAIL']; \
+password = os.environ['DJANGO_SUPERUSER_PASSWORD']; \
 User.objects.filter(username=username).exists() or \
 User.objects.create_superuser(username, email, password)\" && \
 gunicorn online_judge.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
