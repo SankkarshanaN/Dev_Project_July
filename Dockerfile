@@ -33,5 +33,5 @@ ENV DJANGO_SETTINGS_MODULE=${DJANGO_PROJECT}.settings
 EXPOSE 8000
 
 # Run migrations, collectstatic, and start Gunicorn
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn CodeFun.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py createsuperuser --noinput || true && gunicorn CodeFun.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
 
