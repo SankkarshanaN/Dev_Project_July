@@ -23,9 +23,6 @@
     </div>
     
     <div class="nav-right">
-        <!-- Theme Toggle -->
-        <button id="theme-toggle" class="toggle-btn">🌙</button>
-
         {% if user.is_authenticated %}
             <div class="dropdown">
                 <button class="dropbtn">
@@ -67,6 +64,7 @@
         const profileBtn = document.querySelector('.dropbtn');
         const dropdownContent = document.querySelector('.dropdown-content');
 
+        // Profile dropdown toggle
         if (profileBtn && dropdownContent) {
             profileBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -74,31 +72,13 @@
             });
 
             document.addEventListener('click', function(e) {
-                if (!profileBtn.contains(e.target)) {
+                if (!dropdownContent.contains(e.target) && !profileBtn.contains(e.target)) {
                     dropdownContent.classList.remove('show');
                 }
             });
         }
 
-        // Theme toggle
-        const toggleBtn = document.getElementById("theme-toggle");
-        const body = document.body;
-
-        if (localStorage.getItem("theme") === "dark") {
-            body.classList.add("dark-mode");
-            toggleBtn.textContent = "☀️";
-        }
-
-        toggleBtn?.addEventListener("click", () => {
-            body.classList.toggle("dark-mode");
-            if (body.classList.contains("dark-mode")) {
-                localStorage.setItem("theme", "dark");
-                toggleBtn.textContent = "☀️";
-            } else {
-                localStorage.setItem("theme", "light");
-                toggleBtn.textContent = "🌙";
-            }
-        });
+        // Theme toggle code removed/disabled
     });
 </script>
 

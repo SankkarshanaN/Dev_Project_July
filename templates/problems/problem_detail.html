@@ -1,397 +1,658 @@
-{% extends "base.html" %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sum of Two Numbers - CodeFun</title>
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
+    <style>
+        /* === Global Reset === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        }
 
-{% block title %}{{ problem.title }}{% endblock %}
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #222;
+            min-height: 100vh;
+            position: relative;
+        }
 
-{% block content %}
-<!-- CodeMirror CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
+        /* Animated background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-<style>
-    /* === Layout === */
-    .problem-page {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        padding: 1rem;
-    }
+        /* === Layout === */
+        .problem-page {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-    /* === Problem Statement === */
-    .problem-statement {
-        background: #fff;
-        border-radius: 10px;
-        padding: 1.5rem;
-        max-height: calc(100vh - 100px);
-        overflow-y: auto;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
+        /* === Problem Statement === */
+        .problem-statement {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-    .problem-statement h2 {
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(90deg, #ff9800, #ff5722);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 2px 2px 6px rgba(0,0,0,0.25);
-        letter-spacing: 1px;
-    }
+        .problem-statement::-webkit-scrollbar {
+            width: 8px;
+        }
 
-    .problem-statement h3 {
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
+        .problem-statement::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
 
-    .difficulty.easy { color: green; font-weight: bold; }
-    .difficulty.medium { color: orange; font-weight: bold; }
-    .difficulty.hard { color: red; font-weight: bold; }
+        .problem-statement::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #ff9800, #ff5722);
+            border-radius: 10px;
+        }
 
-    .testcase pre,
-    .problem-statement pre {
-        background: #f8f8f8;
-        padding: 8px;
-        border-radius: 6px;
-        overflow-x: auto;
-    }
+        .problem-statement h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ff9800, #ff5722, #e91e63);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.25);
+            letter-spacing: 1px;
+            position: relative;
+        }
 
-    /* === Toggle Submissions === */
-    .toggle-btn {
-        margin-top: 1rem;
-        background: #ff9800;
-        color: #fff;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
-    }
-    .toggle-btn:hover {
-        background: #e68900;
-    }
-    .submissions.hidden {
-        display: none;
-    }
-    .submissions ul {
-        list-style: none;
-        padding-left: 0;
-    }
-    .submission {
-        background: #f4f4f4;
-        border-radius: 6px;
-        padding: 10px;
-        margin-bottom: 0.8rem;
-    }
+        .problem-statement h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9800, #ff5722);
+            border-radius: 2px;
+        }
 
-    /* === Code Editor === */
-    .code-editor-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    .CodeMirror {
-        border-radius: 8px;
-        min-height: 300px;
-        font-size: 14px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+        .problem-statement h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.3rem;
+        }
 
-    .form-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        margin-top: 0.5rem;
-    }
+        .difficulty {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
 
-    /* === Buttons === */
-    .btn-run, .btn-submit, .btn-hint {
-        border: none;
-        padding: 8px 14px;
-        border-radius: 6px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-    .btn-run { background: #03a9f4; color: #fff; }
-    .btn-run:hover { background: #0288d1; }
-    .btn-submit { background: #4caf50; color: #fff; }
-    .btn-submit:hover { background: #388e3c; }
-    .btn-hint { background: #ff9800; color: #fff; }
-    .btn-hint:hover { background: #e68900; }
+        .difficulty.easy { 
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
 
-    /* === Custom Input/Output === */
-    .custom-io-container {
-        background: #fff;
-        border-radius: 10px;
-        padding: 1rem;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-    #custom-input {
-        width: 100%;
-        min-height: 80px;
-        border-radius: 6px;
-        margin-bottom: 0.8rem;
-        padding: 8px;
-        font-family: monospace;
-        border: 1px solid #ddd;
-    }
-    #run-custom-btn {
-        background: #673ab7;
-        color: #fff;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
-    }
-    #run-custom-btn:hover {
-        background: #512da8;
-    }
-    .output-container {
-        margin-top: 0.8rem;
-        background: #000;
-        color: #0f0;
-        padding: 10px;
-        border-radius: 6px;
-        font-family: monospace;
-        font-size: 14px;
-    }
-</style>
+        .difficulty.medium { 
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
 
-<div class="card problem-page">
+        .difficulty.hard { 
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
 
-    <!-- Problem Statement -->
-    <div class="problem-statement">
-        <h2>{{ problem.title }}</h2>
-        <p class="difficulty {{ problem.difficulty|lower }}">
-            Difficulty: {{ problem.difficulty }}
-        </p>
+        .testcase, .problem-statement pre {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 0.8rem 0;
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
 
-        {% if problem.description %}
-        <div>
-            <h3>Description</h3>
-            <p>{{ problem.description|linebreaks }}</p>
-        </div>
-        {% endif %}
+        .testcase strong {
+            color: #ff9800;
+            font-weight: 700;
+        }
 
-        {% if problem.input_format %}
-        <div>
-            <h3>Input Format</h3>
-            <pre>{{ problem.input_format }}</pre>
-        </div>
-        {% endif %}
+        /* === Code Editor Container === */
+        .code-editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
 
-        {% if problem.output_format %}
-        <div>
-            <h3>Output Format</h3>
-            <pre>{{ problem.output_format }}</pre>
-        </div>
-        {% endif %}
+        .code-editor-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-        {% if problem.constraints %}
-        <div>
-            <h3>Constraints</h3>
-            <pre>{{ problem.constraints }}</pre>
-        </div>
-        {% endif %}
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-        {% if sample_test_cases %}
-        <div>
-            <h3>Sample Test Cases</h3>
-            {% for case in sample_test_cases %}
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .language-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .language-select:focus {
+            outline: none;
+            border-color: #ff9800;
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+        }
+
+        /* === CodeMirror Styling === */
+        .CodeMirror {
+            border-radius: 12px;
+            min-height: 400px;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 2px solid rgba(255, 152, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .CodeMirror:hover {
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            border-color: rgba(255, 152, 0, 0.4);
+        }
+
+        /* === Form Actions === */
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        /* === Enhanced Buttons === */
+        .btn-run, .btn-submit, .btn-hint {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+        }
+
+        .btn-run { 
+            background: linear-gradient(135deg, #03a9f4, #0288d1);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
+        }
+
+        .btn-run:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(3, 169, 244, 0.4);
+        }
+
+        .btn-submit { 
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-submit:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-hint { 
+            background: linear-gradient(135deg, #ff9800, #e68900);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-hint:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+        }
+
+        /* === Hint Remaining === */
+        #ai-hint-remaining {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* === AI Hint Box === */
+        #ai-hint-box {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border: 2px solid #ff9800;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.2);
+            margin-top: 1rem;
+        }
+
+        #ai-hint-box h4 {
+            color: #e65100;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        /* === Custom Input/Output === */
+        .custom-io-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .custom-io-container h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #333;
+            font-weight: 700;
+        }
+
+        #custom-input {
+            width: 100%;
+            min-height: 120px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        #custom-input:focus {
+            outline: none;
+            border-color: #ff9800;
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+        }
+
+        #run-custom-btn {
+            background: linear-gradient(135deg, #673ab7, #512da8);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        #run-custom-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(103, 58, 183, 0.4);
+        }
+
+        .output-container {
+            margin-top: 1.5rem;
+            background: #1a1a1a;
+            color: #00ff41;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid #333;
+        }
+
+        .output-container h4 {
+            color: #ff9800;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        /* === Toggle Button === */
+        .toggle-btn {
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, #ff9800, #e68900);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+        }
+
+        /* === Submissions === */
+        .submissions.hidden {
+            display: none;
+        }
+
+        .submissions ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 1rem;
+        }
+
+        .submission {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #ff9800;
+        }
+
+        /* === Responsive Design === */
+        @media (max-width: 1024px) {
+            .problem-page {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            
+            .CodeMirror {
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .problem-statement h2 {
+                font-size: 2rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn-run, .btn-submit, .btn-hint {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* === Loading Animation === */
+        #ai-hint-loading {
+            color: #ff9800;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="problem-page">
+        <!-- Problem Statement -->
+        <div class="problem-statement">
+            <h2>Sum of Two Numbers</h2>
+            <p class="difficulty easy">
+                Difficulty: Easy
+            </p>
+
+            <div>
+                <h3>Description</h3>
+                <p>Write a program that reads two integers and prints their sum.</p>
+            </div>
+
+            <div>
+                <h3>Input Format</h3>
+                <pre>Two integers a and b separated by a space.</pre>
+            </div>
+
+            <div>
+                <h3>Output Format</h3>
+                <pre>A single integer, the sum of a and b.</pre>
+            </div>
+
+            <div>
+                <h3>Constraints</h3>
+                <pre>-10^9 ≤ a, b ≤ 10^9</pre>
+            </div>
+
+            <div>
+                <h3>Sample Test Cases</h3>
                 <div class="testcase">
                     <strong>Input:</strong>
-                    <pre>{{ case.input_data }}</pre>
+                    <pre>3 7</pre>
                     <strong>Output:</strong>
-                    <pre>{{ case.output_data }}</pre>
+                    <pre>10</pre>
                 </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+                <div class="testcase">
+                    <strong>Input:</strong>
+                    <pre>1000000000 -1000000000</pre>
+                    <strong>Output:</strong>
+                    <pre>0</pre>
+                </div>
+            </div>
 
-        {% if previous_submissions %}
-        <button class="toggle-btn" onclick="toggleSubmissions()">Show/Hide Previous Submissions</button>
-        <div id="submissions-panel" class="submissions hidden">
-            <ul>
-                {% for sub in previous_submissions %}
-                <li class="submission">
-                    <strong>{{ sub.language }}</strong> 
-                    ({{ sub.submitted_at|date:"Y-m-d H:i" }})
-                    {% if sub.result == "Accepted" %}
+            <button class="toggle-btn" onclick="toggleSubmissions()">Show/Hide Previous Submissions</button>
+            <div id="submissions-panel" class="submissions hidden">
+                <ul>
+                    <li class="submission">
+                        <strong>Python</strong> 
+                        (2024-01-15 14:30)
                         <span style="color:green;">✅ Accepted</span>
-                    {% elif sub.result == "Wrong Answer" %}
-                        <span style="color:red;">❌ Wrong Answer</span>
-                    {% elif sub.result == "Runtime Error" %}
-                        <span style="color:orange;">⚠️ Runtime Error</span>
-                    {% elif sub.result == "Time Limit Exceeded" %}
-                        <span style="color:purple;">⏳ Time Limit Exceeded</span>
-                    {% else %}
-                        <span style="color:gray;">{{ sub.result }}</span>
-                    {% endif %}
-                    <pre>{{ sub.code|truncatechars:120 }}</pre>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Code Editor -->
-    <div class="code-editor-container">
-        <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="code-editor-form">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="language">Language:</label>
-                <select name="language" id="language" class="language-select">
-                    <option value="python">Python</option>
-                    <option value="cpp">C++</option>
-                    <option value="c">C</option>
-                    <option value="java">Java</option>
-                </select>
+                        <pre>a, b = map(int, input().split())
+print(a + b)</pre>
+                    </li>
+                </ul>
             </div>
-
-            <textarea id="code" name="code"></textarea>
-
-            <div class="form-actions">
-                <button type="submit" name="action" value="run" class="btn-run">Run Code</button>
-                <button type="submit" name="action" value="submit" class="btn-submit">Submit Code</button>
-                <button type="button" id="btn-ai-hint" class="btn-hint">💡 Get AI Hint</button>
-                <span id="ai-hint-loading" style="display:none;">⏳ Loading...</span>
-                <span id="ai-hint-remaining">
-                    Hints left: {{ remaining_hints }} (resets in {{ reset_in_hours }} hrs)
-                </span>
-            </div>
-        </form>
-
-        <!-- AI Hint -->
-        <div id="ai-hint-box" style="display:none; border:1px solid #ccc; padding:10px; border-radius:5px; background:#f8f8f8;">
-            <h4>AI Hint:</h4>
-            <pre id="ai-hint-text"></pre>
         </div>
 
-        <!-- Custom I/O -->
-        <div class="custom-io-container">
-            <h3>Custom Input / Output</h3>
-            <textarea id="custom-input" placeholder="Enter your input here..."></textarea>
-            <button id="run-custom-btn">Run with Custom Input</button>
-            <div class="output-container">
-                <h4>Output:</h4>
-                <pre id="custom-output"></pre>
+        <!-- Code Editor -->
+        <div class="code-editor-container">
+            <form method="POST" action="#" class="code-editor-form">
+                <div class="form-group">
+                    <label for="language">Language:</label>
+                    <select name="language" id="language" class="language-select">
+                        <option value="python">Python</option>
+                        <option value="cpp">C++</option>
+                        <option value="c">C</option>
+                        <option value="java">Java</option>
+                    </select>
+                </div>
+
+                <textarea id="code" name="code" placeholder="Write your code here..."></textarea>
+
+                <div class="form-actions">
+                    <button type="submit" name="action" value="run" class="btn-run">▶️ Run Code</button>
+                    <button type="submit" name="action" value="submit" class="btn-submit">🚀 Submit Code</button>
+                    <button type="button" id="btn-ai-hint" class="btn-hint">💡 Get AI Hint</button>
+                    <span id="ai-hint-loading" style="display:none;">⏳ Loading...</span>
+                    <span id="ai-hint-remaining">
+                        Hints left: 3 (resets in 24 hrs)
+                    </span>
+                </div>
+            </form>
+
+            <!-- AI Hint -->
+            <div id="ai-hint-box" style="display:none;">
+                <h4>🤖 AI Hint:</h4>
+                <pre id="ai-hint-text"></pre>
+            </div>
+
+            <!-- Custom I/O -->
+            <div class="custom-io-container">
+                <h3>🔧 Custom Input / Output</h3>
+                <textarea id="custom-input" placeholder="Enter your input here..."></textarea>
+                <button id="run-custom-btn">🎯 Run with Custom Input</button>
+                <div class="output-container">
+                    <h4>📤 Output:</h4>
+                    <pre id="custom-output">Your output will appear here...</pre>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- CodeMirror Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/python/python.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/matchbrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
+    <!-- CodeMirror Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
 
-<script>
-    // === CodeMirror Setup ===
-    const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        mode: "python",
-        theme: "dracula",
-        matchBrackets: true,
-        autoCloseBrackets: true,
-        indentUnit: 4,
-        tabSize: 4,
-        indentWithTabs: true,
-    });
-
-    // Sync CodeMirror with form submission
-    document.querySelector(".code-editor-form").addEventListener("submit", function () {
-        document.getElementById("code").value = editor.getValue();
-    });
-
-    // Toggle Submissions
-    function toggleSubmissions() {
-        const panel = document.getElementById("submissions-panel");
-        panel.classList.toggle("hidden");
-    }
-
-    // Custom Run
-    document.getElementById("run-custom-btn").addEventListener("click", async function () {
-        const code = editor.getValue();
-        const language = document.getElementById("language").value;
-        const customInput = document.getElementById("custom-input").value;
-
-        const response = await fetch("{% url 'submissions:run_custom' problem.id %}", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: new URLSearchParams({ code, language, custom_input: customInput })
+    <script>
+        // === CodeMirror Setup ===
+        const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            mode: "python",
+            theme: "dracula",
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            indentWithTabs: true,
         });
 
-        const result = await response.json();
-        document.getElementById("custom-output").textContent = result.output || result.error || "No output.";
-    });
+        // Language change handler
+        document.getElementById("language").addEventListener("change", function() {
+            const language = this.value;
+            let mode = "python";
+            
+            switch(language) {
+                case "cpp":
+                case "c":
+                    mode = "text/x-csrc";
+                    break;
+                case "java":
+                    mode = "text/x-java";
+                    break;
+                default:
+                    mode = "python";
+            }
+            
+            editor.setOption("mode", mode);
+        });
 
-    // AI Hint
-    const btn = document.getElementById('btn-ai-hint');
-    const loading = document.getElementById('ai-hint-loading');
-    const hintBox = document.getElementById('ai-hint-box');
-    const hintText = document.getElementById('ai-hint-text');
-    const hintRemaining = document.getElementById('ai-hint-remaining');
-    let defaultResetHours = JSON.parse("{{ reset_in_hours|default:0|escapejs }}");
+        // Sync CodeMirror with form submission
+        document.querySelector(".code-editor-form").addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent actual form submission for demo
+            document.getElementById("code").value = editor.getValue();
+            
+            // Show demo output
+            const action = document.activeElement.value;
+            if (action === 'run') {
+                document.getElementById("custom-output").textContent = "Demo: Code execution would happen here";
+            } else if (action === 'submit') {
+                alert("Demo: Code would be submitted for evaluation");
+            }
+        });
 
-    btn.addEventListener('click', async () => {
-        const code = editor.getValue();
-        const language = document.getElementById('language').value;
-
-        if (!code.trim()) {
-            hintBox.style.display = 'block';
-            hintText.textContent = "Please enter some code first.";
-            hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
+        // Toggle Submissions
+        function toggleSubmissions() {
+            const panel = document.getElementById("submissions-panel");
+            panel.classList.toggle("hidden");
         }
 
-        btn.disabled = true;
-        loading.style.display = 'inline';
+        // Custom Run
+        document.getElementById("run-custom-btn").addEventListener("click", function () {
+            const code = editor.getValue();
+            const language = document.getElementById("language").value;
+            const customInput = document.getElementById("custom-input").value;
 
-        try {
-            const res = await fetch("{% url 'submissions:ai_hint' problem.id %}", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: new URLSearchParams({ code, language })
-            });
-
-            const data = await res.json();
-            hintBox.style.display = 'block';
-
-            if (res.ok && data.hint) {
-                hintText.textContent = data.hint;
-                if (data.remaining_hints !== undefined) {
-                    const reset = data.reset_in_hours !== undefined ? data.reset_in_hours : defaultResetHours;
-                    hintRemaining.textContent = "Hints left: " + data.remaining_hints + " (resets in " + reset + " hrs)";
-                }
-            } else {
-                hintText.textContent = data.error || "Sorry, couldn't generate a hint right now.";
+            if (!code.trim()) {
+                document.getElementById("custom-output").textContent = "Please enter some code first!";
+                return;
             }
 
-            hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
+            // Demo output
+            document.getElementById("custom-output").textContent = `Demo execution with ${language}:\nInput: ${customInput}\nOutput: [Your code would run here]`;
+        });
 
-        } catch (err) {
-            hintBox.style.display = 'block';
-            hintText.textContent = "Network error. Please try again.";
-            hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
-        } finally {
-            btn.disabled = false;
-            loading.style.display = 'none';
-        }
-    });
-</script>
-{% endblock %}
+        // AI Hint
+        const btn = document.getElementById('btn-ai-hint');
+        const loading = document.getElementById('ai-hint-loading');
+        const hintBox = document.getElementById('ai-hint-box');
+        const hintText = document.getElementById('ai-hint-text');
+        const hintRemaining = document.getElementById('ai-hint-remaining');
+
+        btn.addEventListener('click', function() {
+            const code = editor.getValue();
+            
+            if (!code.trim()) {
+                hintBox.style.display = 'block';
+                hintText.textContent = "Please enter some code first before requesting a hint!";
+                hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
+
+            btn.disabled = true;
+            loading.style.display = 'inline';
+
+            // Simulate API call
+            setTimeout(() => {
+                hintBox.style.display = 'block';
+                hintText.textContent = "💡 Try reading two integers using input().split() and convert them using int(). Then simply add them together and print the result!";
+                hintRemaining.textContent = "Hints left: 2 (resets in 24 hrs)";
+                hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
+                
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
