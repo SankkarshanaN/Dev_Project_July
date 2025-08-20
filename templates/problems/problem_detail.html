@@ -504,7 +504,8 @@ print(a + b)</pre>
 
         <!-- Code Editor -->
         <div class="code-editor-container">
-            <form method="POST" action="#" class="code-editor-form">
+            <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="code-editor-form">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="language">Language:</label>
                     <select name="language" id="language" class="language-select">
@@ -589,16 +590,11 @@ print(a + b)</pre>
 
         // Sync CodeMirror with form submission
         document.querySelector(".code-editor-form").addEventListener("submit", function (e) {
-            e.preventDefault(); // Prevent actual form submission for demo
+            // Sync CodeMirror content with textarea before submission
             document.getElementById("code").value = editor.getValue();
             
-            // Show demo output
-            const action = document.activeElement.value;
-            if (action === 'run') {
-                document.getElementById("custom-output").textContent = "Demo: Code execution would happen here";
-            } else if (action === 'submit') {
-                alert("Demo: Code would be submitted for evaluation");
-            }
+            // Let the form submit normally to your Django backend
+            // The form will now work with your existing Django views
         });
 
         // Toggle Submissions
