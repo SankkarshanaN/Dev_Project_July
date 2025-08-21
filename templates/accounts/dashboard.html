@@ -1,30 +1,32 @@
+
+<!-- dashboard.html -->
 {% extends 'base.html' %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard - CodeFun{% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
-
     <!-- Banner -->
     <div class="banner">
         <h1 class="banner-title">🚀 Welcome to <span>CodeFun</span></h1>
-        <p class="banner-quote">“Eat. Sleep. Code. Repeat.”</p>
+        <p class="banner-quote">"Eat. Sleep. Code. Repeat."</p>
     </div>
 
-    <!-- Stats / Progress Summary -->
+    <!-- Stats Card -->
     <div class="dashboard-card">
-        <h2>Welcome, {{ user.username }} 👋</h2>
-        <p>Here's your quick progress summary:</p>
+        <h2>Welcome back, {{ user.username }}! 👋</h2>
+        <p>Here's your coding journey so far:</p>
         <ul>
             <li>🧩 Problems Solved: <strong>{{ problems_solved|default:0 }}</strong></li>
-            <li>⭐ Points: <strong>{{ points|default:0 }}</strong></li>
+            <li>⭐ Points Earned: <strong>{{ points|default:0 }}</strong></li>
+            <li>🏆 Current Rank: <strong>#{{ user_rank|default:"--" }}</strong></li>
         </ul>
         <h3>▶️ Continue where you left off</h3>
         {% if recent_activity %}
             <p>{{ recent_activity }}</p>
         {% else %}
-            <p>No recent activity yet. Start solving problems!</p>
+            <p>Ready to start your coding adventure? Check out our problems!</p>
+            <a href="{% url 'problem_list' %}" class="btn" style="margin-top: 10px;">🚀 Start Solving</a>
         {% endif %}
     </div>
-
 </div>
 {% endblock %}

@@ -1,164 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - CodeFun</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      font-family: 'Poppins', sans-serif;
-    }
-
-    .site-title {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-
-    .site-title h1 {
-      font-size: 3rem;
-      font-weight: 700;
-      color: white;
-      margin: 0;
-      text-shadow: 0px 4px 10px rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transform: translateX(-35px);
-    }
-
-    .site-title p {
-      color: #f0f0f0;
-      font-weight: 400;
-      margin-top: 0.5rem;
-    }
-
-    .login-box {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 2rem 2.2rem;
-      border-radius: 15px;
-      box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
-      width: 350px;
-      text-align: center;
-      box-sizing: border-box;
-    }
-
-    .login-box h2 {
-      margin-bottom: 1.5rem;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: white;
-    }
-
-    .login-box input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-      box-sizing: border-box;
-    }
-
-    .login-box button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 1rem;
-      background: linear-gradient(90deg, #ff758c, #ff7eb3);
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .login-box button:hover {
-      opacity: 0.9;
-    }
-
-    .login-box p {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #ddd;
-    }
-
-    .login-box p a {
-      color: #ffd86f;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .login-box p a:hover {
-      text-decoration: underline;
-    }
-
-    .password-rules {
-      text-align: left;
-      font-size: 0.8rem;
-      color: #f0f0f0;
-      margin-top: -5px;
-      margin-bottom: 10px;
-      padding-left: 18px;
-    }
-    .password-rules li {
-      margin-bottom: 3px;
-    }
-
-    .errorlist {
-      color: #ffcccc;
-      font-size: 0.85rem;
-      margin-bottom: 5px;
-      list-style: none;
-      padding: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - CodeFun</title>
+    <link rel="stylesheet" href="{% load static %}{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div class="site-title">
-    <h1>🚀 CODEFUN</h1>
-    <p>Practice · Compete · Improve</p>
-  </div>
+<body class="auth-body">
+    <div class="site-title">
+        <h1>🚀 CODEFUN</h1>
+        <p>Practice · Compete · Improve</p>
+    </div>
 
-  <div class="login-box">
-    <h2>Register</h2>
-    <form method="POST">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
+    <div class="login-box">
+        <h2>Register</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
 
-      {{ form.username.errors }}
-      {{ form.username }}
+            {{ form.username.errors }}
+            {{ form.username }}
 
-      {{ form.email.errors }}
-      {{ form.email }}
+            {{ form.email.errors }}
+            {{ form.email }}
 
-      {{ form.password1.errors }}
-      {{ form.password1 }}
-      
-      <ul class="password-rules">
-        <li>At least 8 characters</li>
-        <li>One uppercase & one lowercase</li>
-        <li>At least 1 number</li>
-        <li>At least 1 special character (!@#$%)</li>
-      </ul>
+            {{ form.password1.errors }}
+            {{ form.password1 }}
+            
+            <ul class="password-rules">
+                <li>At least 8 characters</li>
+                <li>One uppercase & one lowercase</li>
+                <li>At least 1 number</li>
+                <li>At least 1 special character (!@#$%)</li>
+            </ul>
 
-      {{ form.password2.errors }}
-      {{ form.password2 }}
+            {{ form.password2.errors }}
+            {{ form.password2 }}
 
-      <button type="submit">Register</button>
-    </form>
-    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
-  </div>
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    </div>
 </body>
 </html>

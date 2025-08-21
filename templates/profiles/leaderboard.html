@@ -1,32 +1,45 @@
+<!-- leaderboard.html -->
 {% extends "base.html" %}
-{% block title %}Leaderboard{% endblock %}
+{% block title %}Leaderboard - CodeFun{% endblock %}
 
 {% block content %}
 <div class="page-container">
     <h2>🏆 Leaderboard</h2>
-    <table class="styled-table">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>User</th>
-                <th>Problems Solved</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for profile in leaderboard %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ profile.username }}</td>
-                <td>{{ profile.problems_solved|default:0 }}</td>
-                <td>{{ profile.points|default:0 }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">No leaderboard data yet.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="styled-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>🏅 Rank</th>
+                    <th>👤 User</th>
+                    <th>🧩 Problems Solved</th>
+                    <th>⭐ Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in leaderboard %}
+                <tr {% if profile.username == user.username %}style="background: linear-gradient(135deg, #fff3e0, #ffe0b2);"{% endif %}>
+                    <td>
+                        <strong>
+                            {% if forloop.counter == 1 %}🥇
+                            {% elif forloop.counter == 2 %}🥈
+                            {% elif forloop.counter == 3 %}🥉
+                            {% else %}{{ forloop.counter }}{% endif %}
+                        </strong>
+                    </td>
+                    <td>
+                        <strong>{{ profile.username }}</strong>
+                        {% if profile.username == user.username %}<em>(You)</em>{% endif %}
+                    </td>
+                    <td>{{ profile.problems_solved|default:0 }}</td>
+                    <td>{{ profile.points|default:0 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">🚀 Be the first to appear on the leaderboard!</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
