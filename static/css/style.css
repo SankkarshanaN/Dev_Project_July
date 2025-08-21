@@ -269,19 +269,21 @@ body {
 /* ===== Tables ===== */
 .styled-table {
     width: 100%;
-    margin: 30px 0;
+    margin: 30px auto;
     background: #ffffff;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
     border-collapse: collapse;
+    max-width: 800px;
 }
 
 .styled-table th,
 .styled-table td {
     padding: 15px 20px;
-    text-align: left;
+    text-align: center;  /* Changed from left to center */
     border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
 }
 
 .styled-table th {
@@ -290,24 +292,41 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.styled-table tr {
+    transition: all 0.2s ease;
 }
 
 .styled-table tr:hover {
     background: #f8f9fa;
     transform: scale(1.01);
-    transition: all 0.2s ease;
 }
 
-.styled-table a {
-    color: #ff9800;
-    text-decoration: none;
+/* Add specific column widths */
+.styled-table th:nth-child(1),
+.styled-table td:nth-child(1) {
+    width: 15%;  /* Rank column */
+}
+
+.styled-table th:nth-child(2),
+.styled-table td:nth-child(2) {
+    width: 35%;  /* User column */
+    text-align: left;  /* Keep usernames left-aligned */
+}
+
+.styled-table th:nth-child(3),
+.styled-table td:nth-child(3),
+.styled-table th:nth-child(4),
+.styled-table td:nth-child(4) {
+    width: 25%;  /* Problems and Points columns */
+}
+
+/* Current user highlight */
+.styled-table tr[style*="background"] {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2) !important;
     font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.styled-table a:hover {
-    color: #e68900;
-    text-decoration: underline;
 }
 
 /* ===== Difficulty Labels ===== */
