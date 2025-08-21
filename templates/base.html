@@ -3,84 +3,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Online Judge{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CodeFun - Online Judge{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
+    {% if not request.path == '/accounts/login/' and not request.path == '/accounts/register/' %}
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="{% url 'dashboard' %}" class="nav-link">🏠 Home</a>
+            <a href="{% url 'problem_list' %}" class="nav-link">📝 Problems</a>
+            <a href="{% url 'leaderboard' %}" class="nav-link">🏆 Leaderboard</a>
+        </div>
 
-{% if not request.path == '/accounts/login/' and not request.path == '/accounts/register/' %}
-<!-- Navbar -->
-<nav class="navbar">
-    <div class="nav-left">
-        <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
-        <a href="{% url 'problem_list' %}" class="nav-link">Problems</a>
-        <a href="{% url 'leaderboard' %}" class="nav-link">Leaderboard</a>
-    </div>
-
-    <div class="nav-center">
-        <h1 class="brand">CodeFun</h1>
-    </div>
-    
-    <div class="nav-right">
-        {% if user.is_authenticated %}
-            <div class="dropdown">
-                <button class="dropbtn">
-                    <img src="{% if user.member.profile_picture %}{{ user.member.profile_picture.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}" 
-                         alt="Profile" class="profile-icon">
-                </button>
-                <div class="dropdown-content">
-                    <a href="{% url 'profile' user.username %}">Profile</a>
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="logout-btn">Logout</button>
-                    </form>
+        <div class="nav-center">
+            <h1 class="brand">CodeFun</h1>
+        </div>
+        
+        <div class="nav-right">
+            {% if user.is_authenticated %}
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        <img src="{% if user.member.profile_picture %}{{ user.member.profile_picture.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}" 
+                             alt="Profile" class="profile-icon">
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="{% url 'profile' user.username %}">👤 Profile</a>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">🚪 Logout</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        {% else %}
-            <a href="{% url 'login' %}" class="btn-nav">Login</a>
-            <a href="{% url 'register' %}" class="btn-nav">Register</a>
-        {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-nav">Login</a>
+                <a href="{% url 'register' %}" class="btn-nav">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
     </div>
-</nav>
-{% endif %}
+    {% endif %}
 
-<!-- Messages -->
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-        <div class="message {{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
+    <!-- Main Content -->
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
 
-<!-- Main Content -->
-<main class="content">
-    {% block content %}{% endblock %}
-</main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileBtn = document.querySelector('.dropbtn');
+            const dropdownContent = document.querySelector('.dropdown-content');
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const profileBtn = document.querySelector('.dropbtn');
-        const dropdownContent = document.querySelector('.dropdown-content');
+            if (profileBtn && dropdownContent) {
+                profileBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownContent.classList.toggle('show');
+                });
 
-        // Profile dropdown toggle
-        if (profileBtn && dropdownContent) {
-            profileBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdownContent.classList.toggle('show');
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!dropdownContent.contains(e.target) && !profileBtn.contains(e.target)) {
-                    dropdownContent.classList.remove('show');
-                }
-            });
-        }
-
-        // Theme toggle code removed/disabled
-    });
-</script>
-
+                document.addEventListener('click', function(e) {
+                    if (!dropdownContent.contains(e.target) && !profileBtn.contains(e.target)) {
+                        dropdownContent.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

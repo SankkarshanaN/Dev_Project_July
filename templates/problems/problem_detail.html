@@ -3,502 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sum of Two Numbers - CodeFun</title>
+    <title>{{ problem.title }} - CodeFun</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <!-- CodeMirror CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
     <style>
-        /* === Global Reset === */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Roboto, Arial, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #222;
-            min-height: 100vh;
-            position: relative;
-        }
-
-        /* Animated background pattern */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* === Layout === */
         .problem-page {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
             padding: 2rem;
-            position: relative;
-            z-index: 1;
-            max-width: 1400px;
-            margin: 0 auto;
         }
 
-        /* === Problem Statement === */
         .problem-statement {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             border-radius: 20px;
             padding: 2rem;
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
-        .problem-statement::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .problem-statement::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
-            border-radius: 10px;
-        }
-
-        .problem-statement::-webkit-scrollbar-thumb {
-            background: linear-gradient(45deg, #ff9800, #ff5722);
-            border-radius: 10px;
-        }
-
-        .problem-statement h2 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #ff9800, #ff5722, #e91e63);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.25);
-            letter-spacing: 1px;
-            position: relative;
-        }
-
-        .problem-statement h2::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(90deg, #ff9800, #ff5722);
-            border-radius: 2px;
-        }
-
-        .problem-statement h3 {
-            margin-top: 1.5rem;
-            margin-bottom: 0.8rem;
-            font-weight: 600;
-            color: #333;
-            font-size: 1.3rem;
-        }
-
-        .difficulty {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .difficulty.easy { 
-            background: linear-gradient(135deg, #4caf50, #45a049);
-            color: white;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-        }
-
-        .difficulty.medium { 
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-        }
-
-        .difficulty.hard { 
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
-        }
-
-        .testcase, .problem-statement pre {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 1rem;
-            border-radius: 12px;
-            overflow-x: auto;
-            margin: 0.8rem 0;
-            border-left: 4px solid #ff9800;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-
-        .testcase strong {
-            color: #ff9800;
-            font-weight: 700;
-        }
-
-        /* === Code Editor Container === */
         .code-editor-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .code-editor-form {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .form-group {
             margin-bottom: 1.5rem;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
-            font-size: 1.1rem;
-        }
-
-        .language-select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            background: white;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .language-select:focus {
-            outline: none;
-            border-color: #ff9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
-        }
-
-        /* === CodeMirror Styling === */
-        .CodeMirror {
-            border-radius: 12px;
-            min-height: 400px;
-            font-size: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            border: 2px solid rgba(255, 152, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .CodeMirror:hover {
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-            border-color: rgba(255, 152, 0, 0.4);
-        }
-
-        /* === Form Actions === */
-        .form-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            margin-top: 1.5rem;
-        }
-
-        /* === Enhanced Buttons === */
-        .btn-run, .btn-submit, .btn-hint {
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            font-size: 1rem;
-        }
-
-        .btn-run { 
-            background: linear-gradient(135deg, #03a9f4, #0288d1);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
-        }
-
-        .btn-run:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(3, 169, 244, 0.4);
-        }
-
-        .btn-submit { 
-            background: linear-gradient(135deg, #4caf50, #388e3c);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-        }
-
-        .btn-submit:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
-        }
-
-        .btn-hint { 
-            background: linear-gradient(135deg, #ff9800, #e68900);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-        }
-
-        .btn-hint:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
-        }
-
-        /* === Hint Remaining === */
-        #ai-hint-remaining {
-            background: rgba(255, 152, 0, 0.1);
-            color: #ff9800;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        /* === AI Hint Box === */
-        #ai-hint-box {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            border: 2px solid #ff9800;
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.2);
-            margin-top: 1rem;
-        }
-
-        #ai-hint-box h4 {
-            color: #e65100;
-            margin-bottom: 0.8rem;
-            font-size: 1.2rem;
-        }
-
-        /* === Custom Input/Output === */
         .custom-io-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .custom-io-container h3 {
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-            color: #333;
-            font-weight: 700;
-        }
-
-        #custom-input {
-            width: 100%;
-            min-height: 120px;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            padding: 16px;
-            font-family: 'Courier New', monospace;
-            border: 2px solid #e0e0e0;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            resize: vertical;
-        }
-
-        #custom-input:focus {
-            outline: none;
-            border-color: #ff9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
-        }
-
-        #run-custom-btn {
-            background: linear-gradient(135deg, #673ab7, #512da8);
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-
-        #run-custom-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(103, 58, 183, 0.4);
-        }
-
-        .output-container {
-            margin-top: 1.5rem;
-            background: #1a1a1a;
-            color: #00ff41;
-            padding: 1.5rem;
-            border-radius: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid #333;
-        }
-
-        .output-container h4 {
-            color: #ff9800;
-            margin-bottom: 0.8rem;
-            font-size: 1.1rem;
-        }
-
-        /* === Toggle Button === */
-        .toggle-btn {
-            margin-top: 1.5rem;
-            background: linear-gradient(135deg, #ff9800, #e68900);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-        }
-
-        .toggle-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
-        }
-
-        /* === Submissions === */
-        .submissions.hidden {
-            display: none;
-        }
-
-        .submissions ul {
-            list-style: none;
-            padding-left: 0;
-            margin-top: 1rem;
-        }
-
-        .submission {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 4px solid #ff9800;
-        }
-
-        /* === Responsive Design === */
-        @media (max-width: 1024px) {
-            .problem-page {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-                padding: 1rem;
-            }
-            
-            .CodeMirror {
-                min-height: 300px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .problem-statement h2 {
-                font-size: 2rem;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .btn-run, .btn-submit, .btn-hint {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-        }
-
-        /* === Loading Animation === */
-        #ai-hint-loading {
-            color: #ff9800;
-            font-weight: bold;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            margin-top: 2rem;
         }
     </style>
 </head>
-<body>
+<body class="problem-body">
     <div class="problem-page">
         <!-- Problem Statement -->
         <div class="problem-statement">
-            <h2>Sum of Two Numbers</h2>
-            <p class="difficulty easy">
-                Difficulty: Easy
+            <h2>{{ problem.title }}</h2>
+            <p class="difficulty {{ problem.difficulty|lower }}">
+                Difficulty: {{ problem.difficulty }}
             </p>
 
             <div>
-                <h3>Description</h3>
-                <p>Write a program that reads two integers and prints their sum.</p>
+                <h3>📝 Description</h3>
+                <p>{{ problem.description }}</p>
             </div>
 
             <div>
-                <h3>Input Format</h3>
-                <pre>Two integers a and b separated by a space.</pre>
+                <h3>📥 Input Format</h3>
+                <pre>{{ problem.input_format }}</pre>
             </div>
 
             <div>
-                <h3>Output Format</h3>
-                <pre>A single integer, the sum of a and b.</pre>
+                <h3>📤 Output Format</h3>
+                <pre>{{ problem.output_format }}</pre>
             </div>
 
+            {% if problem.constraints %}
             <div>
-                <h3>Constraints</h3>
-                <pre>-10^9 ≤ a, b ≤ 10^9</pre>
+                <h3>⚖️ Constraints</h3>
+                <pre>{{ problem.constraints }}</pre>
             </div>
+            {% endif %}
 
+            {% if sample_test_cases %}
             <div>
-                <h3>Sample Test Cases</h3>
+                <h3>🧪 Sample Test Cases</h3>
+                {% for tc in sample_test_cases %}
                 <div class="testcase">
-                    <strong>Input:</strong>
-                    <pre>3 7</pre>
-                    <strong>Output:</strong>
-                    <pre>10</pre>
+                    <strong>Input {{ forloop.counter }}:</strong>
+                    <pre>{{ tc.input_data }}</pre>
+                    <strong>Output {{ forloop.counter }}:</strong>
+                    <pre>{{ tc.output_data }}</pre>
                 </div>
-                <div class="testcase">
-                    <strong>Input:</strong>
-                    <pre>1000000000 -1000000000</pre>
-                    <strong>Output:</strong>
-                    <pre>0</pre>
-                </div>
+                {% endfor %}
             </div>
+            {% endif %}
 
-            <button class="toggle-btn" onclick="toggleSubmissions()">Show/Hide Previous Submissions</button>
+            <!-- Previous Submissions Toggle -->
+            <button class="toggle-btn" onclick="toggleSubmissions()">📋 Show/Hide Previous Submissions</button>
             <div id="submissions-panel" class="submissions hidden">
+                {% if user_submissions %}
                 <ul>
+                    {% for submission in user_submissions %}
                     <li class="submission">
-                        <strong>Python</strong> 
-                        (2024-01-15 14:30)
-                        <span style="color:green;">✅ Accepted</span>
-                        <pre>a, b = map(int, input().split())
-print(a + b)</pre>
+                        <strong>{{ submission.language }}</strong> 
+                        ({{ submission.submitted_at|date:"M d, Y H:i" }})
+                        <span class="result {% if submission.result == 'Accepted' %}accepted{% else %}rejected{% endif %}">
+                            {% if submission.result == 'Accepted' %}✅{% else %}❌{% endif %} {{ submission.result }}
+                        </span>
+
+                        <a href="{% url 'submission_detail' submission.id %}" style="margin-left: 10px;">View Details</a>
+                        <pre>{{ submission.code|truncatewords:20 }}</pre>
                     </li>
+                    {% endfor %}
                 </ul>
+                {% else %}
+                <p>No previous submissions yet. Start coding!</p>
+                {% endif %}
             </div>
         </div>
 
@@ -507,38 +114,44 @@ print(a + b)</pre>
             <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="code-editor-form">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="language">Language:</label>
+                    <label for="language">🔧 Programming Language:</label>
                     <select name="language" id="language" class="language-select">
-                        <option value="python">Python</option>
-                        <option value="cpp">C++</option>
-                        <option value="c">C</option>
-                        <option value="java">Java</option>
+                        <option value="python">🐍 Python</option>
+                        <option value="cpp">⚡ C++</option>
+                        <option value="c">🔩 C</option>
+                        <option value="java">☕ Java</option>
                     </select>
                 </div>
 
-                <textarea id="code" name="code" placeholder="Write your code here..."></textarea>
+                <div class="form-group">
+                    <label for="code">💻 Your Code:</label>
+                    <textarea id="code" name="code" placeholder="Write your code here..."></textarea>
+                </div>
 
                 <div class="form-actions">
                     <button type="submit" name="action" value="run" class="btn-run">▶️ Run Code</button>
                     <button type="submit" name="action" value="submit" class="btn-submit">🚀 Submit Code</button>
                     <button type="button" id="btn-ai-hint" class="btn-hint">💡 Get AI Hint</button>
-                    <span id="ai-hint-loading" style="display:none;">⏳ Loading...</span>
+                    <span id="ai-hint-loading" class="hidden">⏳ Loading...</span>
                     <span id="ai-hint-remaining">
-                        Hints left: 3 (resets in 24 hrs)
+                        🎯 Hints left: 3 (resets in 24 hrs)
                     </span>
                 </div>
             </form>
 
-            <!-- AI Hint -->
-            <div id="ai-hint-box" style="display:none;">
+            <!-- AI Hint Box -->
+            <div id="ai-hint-box" class="hidden">
                 <h4>🤖 AI Hint:</h4>
                 <pre id="ai-hint-text"></pre>
             </div>
 
-            <!-- Custom I/O -->
+            <!-- Custom Input/Output Testing -->
             <div class="custom-io-container">
-                <h3>🔧 Custom Input / Output</h3>
-                <textarea id="custom-input" placeholder="Enter your input here..."></textarea>
+                <h3>🔧 Custom Input / Output Testing</h3>
+                <textarea id="custom-input" placeholder="Enter your test input here...
+
+Example:
+3 7"></textarea>
                 <button id="run-custom-btn">🎯 Run with Custom Input</button>
                 <div class="output-container">
                     <h4>📤 Output:</h4>
@@ -556,7 +169,7 @@ print(a + b)</pre>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
 
     <script>
-        // === CodeMirror Setup ===
+        // Initialize CodeMirror
         const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             lineNumbers: true,
             mode: "python",
@@ -588,65 +201,61 @@ print(a + b)</pre>
             editor.setOption("mode", mode);
         });
 
-        // Sync CodeMirror with form submission
+        // Form submission handler
         document.querySelector(".code-editor-form").addEventListener("submit", function (e) {
-            // Sync CodeMirror content with textarea before submission
             document.getElementById("code").value = editor.getValue();
-            
-            // Let the form submit normally to your Django backend
-            // The form will now work with your existing Django views
         });
 
-        // Toggle Submissions
+        // Toggle submissions
         function toggleSubmissions() {
             const panel = document.getElementById("submissions-panel");
             panel.classList.toggle("hidden");
         }
 
-        // Custom Run
+        // Custom run functionality
         document.getElementById("run-custom-btn").addEventListener("click", function () {
             const code = editor.getValue();
             const language = document.getElementById("language").value;
             const customInput = document.getElementById("custom-input").value;
 
             if (!code.trim()) {
-                document.getElementById("custom-output").textContent = "Please enter some code first!";
+                document.getElementById("custom-output").textContent = "⚠️ Please enter some code first!";
                 return;
             }
 
-            // Demo output
-            document.getElementById("custom-output").textContent = `Demo execution with ${language}:\nInput: ${customInput}\nOutput: [Your code would run here]`;
+            // This would connect to your backend API for custom runs
+            document.getElementById("custom-output").textContent = `🔄 Running ${language} code...\n\nInput:\n${customInput}\n\n⏳ Output will appear here after execution...`;
         });
 
-        // AI Hint
-        const btn = document.getElementById('btn-ai-hint');
-        const loading = document.getElementById('ai-hint-loading');
+        // AI Hint functionality
+        const hintBtn = document.getElementById('btn-ai-hint');
+        const hintLoading = document.getElementById('ai-hint-loading');
         const hintBox = document.getElementById('ai-hint-box');
         const hintText = document.getElementById('ai-hint-text');
         const hintRemaining = document.getElementById('ai-hint-remaining');
 
-        btn.addEventListener('click', function() {
+        hintBtn.addEventListener('click', function() {
             const code = editor.getValue();
             
             if (!code.trim()) {
-                hintBox.style.display = 'block';
-                hintText.textContent = "Please enter some code first before requesting a hint!";
+                hintBox.classList.remove('hidden');
+                hintText.textContent = "⚠️ Please enter some code first before requesting a hint!";
                 hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
                 return;
             }
 
-            btn.disabled = true;
-            loading.style.display = 'inline';
+            hintBtn.disabled = true;
+            hintLoading.classList.remove('hidden');
 
-            // Simulate API call
+            // Simulate API call - replace with actual endpoint
             setTimeout(() => {
-                hintBox.style.display = 'block';
-                hintText.textContent = "💡 Try reading two integers using input().split() and convert them using int(). Then simply add them together and print the result!";
-                hintRemaining.textContent = "Hints left: 2 (resets in 24 hrs)";
+                hintBox.classList.remove('hidden');
+                hintText.textContent = "💡 Try reading the input using appropriate methods for your chosen language.\n\nFor Python: Use input().split() and map to convert to integers\nFor C++: Use cin >> a >> b\nFor Java: Use Scanner or BufferedReader\n\nThen simply add the two numbers and output the result!";
+                hintRemaining.textContent = "🎯 Hints left: 2 (resets in 24 hrs)";
                 hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
                 
-                btn.disabled = false;
-                loading.style.display = 'none';
+                hintBtn.disabled = false;
+                hintLoading.classList.add('hidden');
             }, 1500);
         });
     </script>

@@ -1,66 +1,70 @@
+<!-- submission_detail.html -->
 {% extends "base.html" %}
-{% load static %}
-
-{% block title %}Submission #{{ submission.id }}{% endblock %}
+{% block title %}Submission #{{ submission.id }} - CodeFun{% endblock %}
 
 {% block content %}
 <div class="card">
-    <h2>Submission #{{ submission.id }}</h2>
-    <p><strong>Problem:</strong> 
-        <a href="{% url 'problem_detail' submission.problem.id %}">
-            {{ submission.problem.title }}
-        </a>
-    </p>
-    <p><strong>Language:</strong> {{ submission.language }}</p>
-    <p><strong>Status:</strong> {{ submission.result }}</p>
-    <p><strong>Submitted at:</strong> {{ submission.submitted_at }}</p>
+    <h2>📋 Submission #{{ submission.id }}</h2>
+    <div class="mb-2">
+        <p><strong>Problem:</strong> 
+            <a href="{% url 'problem_detail' submission.problem.id %}">
+                {{ submission.problem.title }}
+            </a>
+        </p>
+        <p><strong>Language:</strong> {{ submission.language }}</p>
+        <p><strong>Status:</strong> 
+            <span class="status {% if submission.result == 'Accepted' %}accepted{% else %}rejected{% endif %}">
+                {% if submission.result == 'Accepted' %}✅{% else %}❌{% endif %} {{ submission.result }}
+            </span>
+        </p>
 
-    <h3>Code:</h3>
-    <pre style="background:#272822; color:white; padding:1rem; border-radius:5px; overflow-x:auto;">
-{{ submission.code }}
-    </pre>
+        <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+    </div>
+
+    <h3>💻 Your Code:</h3>
+    <div class="code-block">{{ submission.code }}</div>
 
     {% if submission.error %}
-        <h3>Error Message:</h3>
-        <pre style="background:#ffebee; color:#b71c1c; padding:1rem; border-radius:5px;">
-{{ submission.error }}
-        </pre>
+        <h3>⚠️ Error Message:</h3>
+        <div class="error-block">{{ submission.error }}</div>
     {% endif %}
 
-    <h3>Test Case Results (Sample Only):</h3>
+    <h3>🧪 Test Case Results (Sample Only):</h3>
     {% if results %}
-        <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%;">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Input</th>
-                    <th>Expected Output</th>
-                    <th>User Output</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in results %}
-                    {% if r.test_case.is_sample %}   {# ✅ only show sample test cases #}
-                    <tr class="{% if r.passed %}passed{% else %}failed{% endif %}">
-                        <td>{{ forloop.counter }}</td>
-                        <td><pre>{{ r.test_case.input_data }}</pre></td>
-                        <td><pre>{{ r.test_case.output_data }}</pre></td>
-                        <td><pre>{{ r.user_output }}</pre></td>
-                        <td>
-                            {% if r.passed %}
-                                ✅ Passed
-                            {% else %}
-                                ❌ Failed
-                            {% endif %}
-                        </td>
+        <div class="styled-table">
+            <table class="test-results-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Input</th>
+                        <th>Expected Output</th>
+                        <th>Your Output</th>
+                        <th>Status</th>
                     </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                        {% if r.test_case.is_sample %}
+                        <tr class="{% if r.passed %}passed{% else %}failed{% endif %}">
+                            <td>{{ forloop.counter }}</td>
+                            <td><pre>{{ r.test_case.input_data }}</pre></td>
+                            <td><pre>{{ r.test_case.output_data }}</pre></td>
+                            <td><pre>{{ r.user_output }}</pre></td>
+                            <td>
+                                {% if r.passed %}✅ Passed{% else %}❌ Failed{% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
-        <p>No test case results found.</p>
+        <p>🔍 No test case results found.</p>
     {% endif %}
+
+    <div class="mt-3">
+        <a class="btn" href="{% url 'problem_detail' submission.problem.id %}">⬅ Back to Problem</a>
+    </div>
 </div>
 {% endblock %}
