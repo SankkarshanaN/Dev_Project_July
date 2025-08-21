@@ -30,10 +30,16 @@ def problem_detail(request, problem_id):
         remaining_hints = max(usage.limit - usage.used_hints, 0)
         reset_in_hours = 24 - int((timezone.now() - usage.last_reset).total_seconds() // 3600)
 
+    # 🟢 new: preserve submitted code
+    submitted_code = ""
+    if request.method == "POST":
+        submitted_code = request.POST.get("code", "")
+
     return render(request, "problems/problem_detail.html", {
         "problem": problem,
         "sample_test_cases": sample_test_cases,
         "previous_submissions": previous_submissions,
         "remaining_hints": remaining_hints,
         "reset_in_hours": reset_in_hours,
+        "submitted_code": submitted_code,  # ✅ pass to template
     })

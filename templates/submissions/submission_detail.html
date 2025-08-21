@@ -17,16 +17,17 @@
                 {% if submission.result == 'Accepted' %}✅{% else %}❌{% endif %} {{ submission.result }}
             </span>
         </p>
-
         <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
     </div>
 
     <h3>💻 Your Code:</h3>
-    <div class="code-block">{{ submission.code }}</div>
+    <div class="code-block">
+        <pre><code class="language-{{ submission.language|lower }}">{{ submission.code }}</code></pre>
+    </div>
 
     {% if submission.error %}
         <h3>⚠️ Error Message:</h3>
-        <div class="error-block">{{ submission.error }}</div>
+        <div class="error-block"><pre>{{ submission.error }}</pre></div>
     {% endif %}
 
     <h3>🧪 Test Case Results (Sample Only):</h3>
@@ -67,4 +68,9 @@
         <a class="btn" href="{% url 'problem_detail' submission.problem.id %}">⬅ Back to Problem</a>
     </div>
 </div>
+
+<!-- Highlight.js -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 {% endblock %}

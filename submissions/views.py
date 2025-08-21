@@ -20,16 +20,29 @@ from datetime import timedelta
 # -------------------------------
 # Custom run (no DB persistence)
 # -------------------------------
+@login_required
+@require_POST
 def run_custom(request, problem_id):
-    if request.method == "POST":
+    try:
         code = request.POST.get("code", "")
         language = request.POST.get("language", "python")
         custom_input = request.POST.get("custom_input", "")
 
+        if not code.strip():
+            return JsonResponse({"error": "No code provided"}, status=400)
+
         output = execute_code(language, code, custom_input)
+        
+        # Check for specific error messages
+        if output.startswith("Compilation Error") or \
+           output.startswith("Runtime Error") or \
+           output.startswith("⏳"):
+            return JsonResponse({"error": output})
+            
         return JsonResponse({"output": output})
 
-    return JsonResponse({"error": "Invalid request"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
 
 
 def execute_code(language, code, user_input=""):

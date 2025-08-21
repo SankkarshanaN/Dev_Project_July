@@ -40,7 +40,7 @@
         }
     </style>
 </head>
-<body class="problem-body">
+<body class="problem-body" data-problem-id="{{ problem.id }}">
     <div class="problem-page">
         <!-- Problem Statement -->
         <div class="problem-statement">
@@ -125,7 +125,7 @@
 
                 <div class="form-group">
                     <label for="code">💻 Your Code:</label>
-                    <textarea id="code" name="code" placeholder="Write your code here..."></textarea>
+                    <textarea id="code" name="code" placeholder="Write your code here...">{{ code|default_if_none:"" }}</textarea>
                 </div>
 
                 <div class="form-actions">
@@ -181,6 +181,9 @@ Example:
             indentWithTabs: true,
         });
 
+        // ✅ Load existing code into editor if available
+        editor.setValue(document.getElementById("code").value);
+
         // Language change handler
         document.getElementById("language").addEventListener("change", function() {
             const language = this.value;
@@ -212,19 +215,53 @@ Example:
             panel.classList.toggle("hidden");
         }
 
+        // ✅ Get problemId safely from data-* attribute
+        const problemId = document.body.dataset.problemId;
+
         // Custom run functionality
-        document.getElementById("run-custom-btn").addEventListener("click", function () {
+        document.getElementById("run-custom-btn").addEventListener("click", async function() {
             const code = editor.getValue();
             const language = document.getElementById("language").value;
             const customInput = document.getElementById("custom-input").value;
+            const outputElement = document.getElementById("custom-output");
 
             if (!code.trim()) {
-                document.getElementById("custom-output").textContent = "⚠️ Please enter some code first!";
+                outputElement.textContent = "⚠️ Please enter some code first!";
+                outputElement.className = "output-error";
                 return;
             }
 
-            // This would connect to your backend API for custom runs
-            document.getElementById("custom-output").textContent = `🔄 Running ${language} code...\n\nInput:\n${customInput}\n\n⏳ Output will appear here after execution...`;
+            // Show running state
+            outputElement.textContent = `🔄 Running ${language} code...\n\nInput:\n${customInput}\n\n⏳ Processing...`;
+            outputElement.className = "output-running";
+
+            try {
+                const formData = new FormData();
+                formData.append('code', code);
+                formData.append('language', language);
+                formData.append('custom_input', customInput);
+
+                const response = await fetch(`/submissions/problems/${problemId}/run-custom/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    outputElement.textContent = `❌ ${data.error}`;
+                    outputElement.className = "output-error";
+                } else {
+                    outputElement.textContent = data.output;
+                    outputElement.className = "output-success";
+                }
+            } catch (error) {
+                outputElement.textContent = `❌ Error: ${error.message}`;
+                outputElement.className = "output-error";
+            }
         });
 
         // AI Hint functionality
