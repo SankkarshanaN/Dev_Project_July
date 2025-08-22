@@ -2,6 +2,49 @@
 {% extends "base.html" %}
 {% block title %}Submission #{{ submission.id }} - CodeFun{% endblock %}
 
+{% block extra_head %}
+<style>
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: .5rem 1rem;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    transition: all 0.2s;
+  }
+  .btn:hover {
+    background: #f0f0f0;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+  }
+  .btn-primary:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+    color: white;
+  }
+  .btn-secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+  }
+  .btn-secondary:hover {
+    background: #545b62;
+    border-color: #545b62;
+    color: white;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="card">
     <h2>📋 Submission #{{ submission.id }}</h2>
@@ -65,7 +108,16 @@
     {% endif %}
 
     <div class="mt-3">
-        <a class="btn" href="{% url 'problem_detail' submission.problem.id %}">⬅ Back to Problem</a>
+      <div class="action-buttons">
+        <a href="{% url 'problem_detail' submission.problem.id %}" class="btn btn-primary">
+          🔙 Back to Problem
+        </a>
+        {% if submission.result == 'Accepted' %}
+          <a href="{% url 'problem_list' %}" class="btn btn-secondary">
+            📝 Try Another Problem
+          </a>
+        {% endif %}
+      </div>
     </div>
 </div>
 
