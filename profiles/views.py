@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import ProfilePictureForm
 from .models import Member
 from django.db.models import Count, Sum, Case, When, IntegerField
+from django.contrib import messages
 from django.contrib.auth.models import User
 from submissions.models import Submission, Problem
 from django.db.models import Count
@@ -11,18 +12,23 @@ from django.db.models import Count
 @login_required
 def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
-    member = get_object_or_404(Member, user=profile_user)
+    
+    # Get or create member profile (important for new users)
+    member, created = Member.objects.get_or_create(user=profile_user)
 
-    # Allow profile picture update only for the logged-in user
+    # Handle profile picture update
     if request.method == 'POST' and profile_user == request.user:
         form = ProfilePictureForm(request.POST, request.FILES, instance=member)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Profile picture updated successfully! 🎉')
             return redirect('profile', username=request.user.username)
+        else:
+            messages.error(request, 'Error updating profile picture. Please try again.')
     else:
         form = ProfilePictureForm(instance=member) if profile_user == request.user else None
 
-    # 🟢 Find favorite language from submissions
+    # Get favorite language from submissions
     favorite_lang = (
         Submission.objects.filter(user=profile_user)
         .values("language")
@@ -31,12 +37,22 @@ def profile_view(request, username):
         .first()
     )
 
+    # Update member stats
+    if created or member.total_submissions == 0:
+        member.total_submissions = Submission.objects.filter(user=profile_user).count()
+        member.problems_solved = (
+            Submission.objects.filter(user=profile_user, result="Accepted")
+            .values("problem")
+            .distinct()
+            .count()
+        )
+        member.save()
+
     context = {
         'profile_user': profile_user,
         'member': member,
         'form': form,
-        "favorite_language": favorite_lang["language"] if favorite_lang else None,
-        
+        'favorite_language': favorite_lang["language"] if favorite_lang else None,
     }
     return render(request, 'profiles/profile.html', context)
 

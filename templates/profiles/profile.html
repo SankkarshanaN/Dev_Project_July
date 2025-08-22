@@ -1,157 +1,289 @@
-{% extends "base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CodeFun{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .profile-dropdown {
+            position: relative;
+        }
+        
+        .profile-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .profile-toggle:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            min-width: 200px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        
+        .dropdown-item:hover {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+        
+        .messages {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 0 2rem;
+        }
+        
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn-auth {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login {
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-login:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-register {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid transparent;
+        }
+        
+        .btn-register:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% if not request.path == '/accounts/login/' and not request.path == '/accounts/register/' %}
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-nav">
+                <a href="{% url 'home' %}" class="nav-link">🏠 Home</a>
+                <a href="#" class="nav-link">📝 Problems</a>
+                <a href="{% url 'leaderboard' %}" class="nav-link">🏆 Leaderboard</a>
+            </div>
+            
+            <a href="{% url 'home' %}" class="navbar-brand">CodeFun</a>
+            
+            <div class="navbar-nav">
+                {% if user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <div class="profile-toggle" onclick="toggleDropdown()">
+                        <img class="profile-avatar"
+                            src="{{ current_member.profile_picture.url|default:'/static/images/default_avatar.png' }}"
+                            alt="Profile"
+                            onerror="this.src='/static/images/default_avatar.png'">
 
-{% block title %}{{ profile_user.username }}'s Profile{% endblock %}
-
-{% block content %}
-<style>
-/* Background gradient */
-body {
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-    font-family: 'Poppins', sans-serif;
-}
-
-/* Profile card container */
-.profile-container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 450px;
-    margin: 40px auto;
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    animation: fadeInUp 0.8s ease-in-out;
-}
-
-/* Profile pic */
-.profile-pic {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 4px solid #ff9800;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    margin-bottom: 15px;
-    transition: transform 0.3s ease;
-}
-.profile-pic:hover {
-    transform: scale(1.08);
-}
-
-/* Username */
-.profile-container h2 {
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #333;
-}
-
-/* Upload form */
-.upload-form label {
-    background: linear-gradient(90deg, #ff7e5f, #feb47b);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.upload-form label:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-.upload-form input[type="file"] {
-    display: none;
-}
-.upload-form button {
-    padding: 12px 20px;
-    background: linear-gradient(90deg, #43cea2, #185a9d);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.upload-form button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-}
-
-/* Stats section */
-.profile-stats {
-    margin-top: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.stat-card {
-    background: #fff;
-    border-radius: 15px;
-    padding: 14px 20px;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    animation: popIn 0.6s ease forwards;
-    opacity: 0;
-}
-.stat-card:nth-child(1) { animation-delay: 0.2s; }
-.stat-card:nth-child(2) { animation-delay: 0.4s; }
-.stat-card:nth-child(3) { animation-delay: 0.6s; }
-.stat-card:nth-child(4) { animation-delay: 0.8s; }
-
-.stat-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@keyframes popIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Icons inside stats */
-.stat-icon {
-    font-size: 1.3rem;
-}
-</style>
-
-<div class="profile-container">
-    <!-- Profile Picture -->
-    <img class="profile-pic" 
-         src="{% if member.profile_picture %}{{ member.profile_picture.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}" 
-         alt="Profile Picture">
-
-    <!-- Username -->
-    <h2>{{ profile_user.username }}</h2>
-
-    <!-- Upload form (only for profile owner) -->
-    {% if request.user == profile_user and form %}
-    <div class="upload-form">
-        <form method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:15px; align-items:center;">
-            {% csrf_token %}
-            <label for="id_profile_picture">📸 Choose New Picture</label>
-            {{ form.profile_picture }}
-            <button type="submit">🚀 Update Profile Picture</button>
-        </form>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <a href="{% url 'profile' user.username %}" class="dropdown-item">
+                            👤 View Profile
+                        </a>
+                        <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">
+                                🚪 Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="auth-buttons">
+                    <a href="{% url 'login' %}" class="btn-auth btn-login">Login</a>
+                    <a href="{% url 'register' %}" class="btn-auth btn-register">Register</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
     </div>
     {% endif %}
-
-    <!-- Stats -->
-    <div class="profile-stats">
-        <div class="stat-card"><span class="stat-icon">📅</span> Joined: {{ member.join_date|date:"F d, Y" }}</div>
-        <div class="stat-card"><span class="stat-icon">🏆</span> Problems Solved: {{ member.problems_solved }}</div>
-        <div class="stat-card"><span class="stat-icon">📊</span> Total Submissions: {{ member.total_submissions }}</div>
-        <div class="stat-card"><span class="stat-icon">💻</span> Favorite Language: {{ favorite_language|default:"Not set" }}</div>
-    </div>
-</div>
-{% endblock %}
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const toggle = document.querySelector('.profile-toggle');
+            
+            if (dropdown && !dropdown.contains(event.target) && !toggle.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Auto-hide messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
+            });
+        });
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

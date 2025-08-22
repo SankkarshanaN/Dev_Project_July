@@ -84,29 +84,6 @@
                 {% endfor %}
             </div>
             {% endif %}
-
-            <!-- Previous Submissions Toggle -->
-            <button class="toggle-btn" onclick="toggleSubmissions()">📋 Show/Hide Previous Submissions</button>
-            <div id="submissions-panel" class="submissions hidden">
-                {% if user_submissions %}
-                <ul>
-                    {% for submission in user_submissions %}
-                    <li class="submission">
-                        <strong>{{ submission.language }}</strong> 
-                        ({{ submission.submitted_at|date:"M d, Y H:i" }})
-                        <span class="result {% if submission.result == 'Accepted' %}accepted{% else %}rejected{% endif %}">
-                            {% if submission.result == 'Accepted' %}✅{% else %}❌{% endif %} {{ submission.result }}
-                        </span>
-
-                        <a href="{% url 'submission_detail' submission.id %}" style="margin-left: 10px;">View Details</a>
-                        <pre>{{ submission.code|truncatewords:20 }}</pre>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p>No previous submissions yet. Start coding!</p>
-                {% endif %}
-            </div>
         </div>
 
         <!-- Code Editor -->
@@ -208,15 +185,6 @@ Example:
         document.querySelector(".code-editor-form").addEventListener("submit", function (e) {
             document.getElementById("code").value = editor.getValue();
         });
-
-        // Toggle submissions
-        function toggleSubmissions() {
-            const panel = document.getElementById("submissions-panel");
-            panel.classList.toggle("hidden");
-        }
-
-        // ✅ Get problemId safely from data-* attribute
-        const problemId = document.body.dataset.problemId;
 
         // Custom run functionality
         document.getElementById("run-custom-btn").addEventListener("click", async function() {

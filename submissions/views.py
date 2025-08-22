@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.core.paginator import Paginator
 
 from .models import Submission, SubmissionResult, AIHintUsage
 from problems.models import Problem, TestCase
@@ -15,6 +16,27 @@ from google import genai
 
 from django.utils import timezone
 from datetime import timedelta
+
+
+# -------------------------------
+# Submissions List View (NEW)
+# -------------------------------
+@login_required
+def submission_list(request):
+    """Display all submissions by the current user."""
+    submissions = Submission.objects.filter(user=request.user)\
+        .select_related('problem')\
+        .order_by('-submitted_at')
+    
+    # Add pagination (20 submissions per page)
+    paginator = Paginator(submissions, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'submissions/submission_list.html', {
+        'page_obj': page_obj,
+        'submissions': page_obj,
+    })
 
 
 # -------------------------------
@@ -217,7 +239,8 @@ def submit_code(request, problem_id):
         ]
     )
 
-    return redirect("submissions:submission_detail", submission.id)
+    # ✅ FIX: use kwargs for redirect
+    return redirect("submissions:submission_detail", submission_id=submission.id)
 
 
 @login_required
@@ -304,4 +327,3 @@ User code:
 
     except Exception as e:
         return JsonResponse({"error": f"AI hint service failed: {str(e)}"}, status=500)
-
