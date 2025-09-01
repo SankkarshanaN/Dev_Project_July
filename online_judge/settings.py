@@ -19,8 +19,8 @@ SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-placeholder-key"  # fallback for local dev
 )
-DEBUG = True
-#DEBUG = os.environ.get("DEBUG", "False") == "True"
+#DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.environ.get(
     "ALLOWED_HOSTS",
