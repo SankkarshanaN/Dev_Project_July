@@ -29,14 +29,8 @@
             {% if user.is_authenticated %}
                 <div class="dropdown">
                     <button class="dropbtn">
-                        {% if user.member and user.member.profile_picture %}
-                            <img src="{{ user.member.profile_picture.url }}
-                                    ?v={{ user.member.profile_picture.name }}"
-                                 alt="Profile" class="profile-icon">
-                        {% else %}
-                            <img src="{% static 'images/default_avatar.png' %}" 
-                                 alt="Profile" class="profile-icon">
-                        {% endif %}
+                        <img src="{{ user.member.profile_picture_url }}" alt="Profile" class="profile-icon">
+
                     </button>
                     <div class="dropdown-content">
                         <a href="{% url 'profile' user.username %}">👤 Profile</a>
