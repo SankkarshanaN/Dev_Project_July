@@ -287,43 +287,84 @@ def ai_hint(request, problem_id):
             status=403
         )
 
+    # Check API key
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return JsonResponse({"error": "AI service not configured"}, status=500)
+
     # gemini client
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    client = genai.Client(api_key=api_key)
 
+    # Enhanced prompt with better context and instructions
     prompt = f"""
-You are a competitive programming mentor.
-Read the problem and user's code, then return a SHORT, constructive hint (not the full solution).
+You are an expert competitive programming mentor. Analyze the user's code attempt and provide a specific, actionable hint.
 
-Problem:
+PROBLEM DETAILS:
 Title: {problem.title}
 Description: {problem.description}
 Input Format: {problem.input_format}
 Output Format: {problem.output_format}
 Constraints: {problem.constraints}
 
-User language: {language}
-User code:
+USER'S ATTEMPT:
+Language: {language}
+Code:
 ```{language}
 {code}
-"""
+```
+
+INSTRUCTIONS:
+1. First, identify what approach the user is trying to use
+2. Determine if there are logical errors, algorithmic issues, or implementation problems
+3. Provide a SHORT (2-3 sentences max), specific hint that helps them move forward
+4. DO NOT give the complete solution
+5. Focus on the most critical issue preventing their code from working
+6. If the approach is fundamentally wrong, suggest a better algorithmic direction
+7. If the approach is correct but has bugs, point to the problematic area
+
+HINT FORMAT:
+- Be specific to THIS problem and THIS code
+- Mention the actual issue you found
+- Give a concrete next step
+- Keep it concise but actionable
+
+Example good hint: "Your sorting approach is correct, but you're not handling the edge case where two elements have the same value. Check your comparison logic in the loop at line X."
+
+Example bad hint: "Try a different algorithm" or "Check your logic"
+
+Provide your hint now:"""
 
     try:
+        # Simplified API call without generation_config
         resp = client.models.generate_content(
             model="gemini-1.5-flash",
-            contents=prompt,
+            contents=prompt
         )
-        hint = (getattr(resp, "text", "") or "").strip() or "No hint generated."
+        
+        # Extract the hint text
+        hint = ""
+        if hasattr(resp, 'text') and resp.text:
+            hint = resp.text.strip()
+        elif hasattr(resp, 'candidates') and resp.candidates:
+            # Alternative way to extract text
+            hint = resp.candidates[0].content.parts[0].text.strip()
+        
+        if not hint:
+            hint = "No hint generated. Please try again."
 
         # increment on success
         usage.used_hints += 1
         usage.save()
 
         remaining = max(usage.limit - usage.used_hints, 0)
+        hours_left = 24 - int((timezone.now() - usage.last_reset).total_seconds() // 3600)
+        
         return JsonResponse({
             "hint": hint,
             "remaining_hints": remaining,
-            "reset_in_hours": 24 - int((timezone.now() - usage.last_reset).total_seconds() // 3600)
+            "reset_in_hours": hours_left
         })
 
     except Exception as e:
+        print(f"AI Hint Error: {str(e)}")  # For debugging
         return JsonResponse({"error": f"AI hint service failed: {str(e)}"}, status=500)

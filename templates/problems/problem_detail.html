@@ -38,6 +38,36 @@
         .custom-io-container {
             margin-top: 2rem;
         }
+
+        /* AI Hint Box Styling */
+        #ai-hint-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-width: 100%;
+        }
+
+        #ai-hint-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 0;
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="problem-body" data-problem-id="{{ problem.id }}">
@@ -146,6 +176,9 @@ Example:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
 
     <script>
+        // Get problem ID from data attribute
+        const problemId = document.body.dataset.problemId;
+
         // Initialize CodeMirror
         const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             lineNumbers: true,
@@ -232,15 +265,16 @@ Example:
             }
         });
 
-        // AI Hint functionality
+        // AI Hint functionality - FIXED VERSION
         const hintBtn = document.getElementById('btn-ai-hint');
         const hintLoading = document.getElementById('ai-hint-loading');
         const hintBox = document.getElementById('ai-hint-box');
         const hintText = document.getElementById('ai-hint-text');
         const hintRemaining = document.getElementById('ai-hint-remaining');
 
-        hintBtn.addEventListener('click', function() {
+        hintBtn.addEventListener('click', async function() {
             const code = editor.getValue();
+            const language = document.getElementById('language').value;
             
             if (!code.trim()) {
                 hintBox.classList.remove('hidden');
@@ -252,16 +286,42 @@ Example:
             hintBtn.disabled = true;
             hintLoading.classList.remove('hidden');
 
-            // Simulate API call - replace with actual endpoint
-            setTimeout(() => {
+            try {
+                const formData = new FormData();
+                formData.append('code', code);
+                formData.append('language', language);
+
+                const response = await fetch(`/submissions/problems/${problemId}/ai-hint/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    hintText.textContent = `❌ ${data.error}`;
+                    if (data.remaining_hints !== undefined) {
+                        hintRemaining.textContent = `🎯 Hints left: ${data.remaining_hints} (resets in ${data.reset_in_hours} hrs)`;
+                    }
+                } else {
+                    hintText.textContent = data.hint;
+                    hintRemaining.textContent = `🎯 Hints left: ${data.remaining_hints} (resets in ${data.reset_in_hours} hrs)`;
+                }
+                
                 hintBox.classList.remove('hidden');
-                hintText.textContent = "💡 Try reading the input using appropriate methods for your chosen language.\n\nFor Python: Use input().split() and map to convert to integers\nFor C++: Use cin >> a >> b\nFor Java: Use Scanner or BufferedReader\n\nThen simply add the two numbers and output the result!";
-                hintRemaining.textContent = "🎯 Hints left: 2 (resets in 24 hrs)";
                 hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
                 
+            } catch (error) {
+                hintText.textContent = `❌ Error getting hint: ${error.message}`;
+                hintBox.classList.remove('hidden');
+                hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
+            } finally {
                 hintBtn.disabled = false;
                 hintLoading.classList.add('hidden');
-            }, 1500);
+            }
         });
     </script>
 </body>

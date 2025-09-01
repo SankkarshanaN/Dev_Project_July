@@ -1,22 +1,23 @@
-# models.py
+# profiles/models.py
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 def user_profile_path(instance, filename):
     """Generate upload path for profile pictures"""
-    ext = filename.split('.')[-1]
+    ext = filename.split('.')[-1].lower()
     filename = f'user_{instance.user.id}_profile.{ext}'
-    return f'profile_pics/{filename}'
+    return f'profile_pics/user_{instance.user_id}_{uuid.uuid4().hex}.{ext}'
 
 class Member(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='member')
     join_date = models.DateTimeField(default=timezone.now)
     profile_picture = models.ImageField(
         upload_to=user_profile_path, 
         blank=True, 
         null=True,
-        default='images/default_avatar.png'  # Default image path
+        # Remove default here - handle in template logic
     )
     problems_solved = models.PositiveIntegerField(default=0)
     total_submissions = models.PositiveIntegerField(default=0)

@@ -3,8 +3,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 
+# Project root (where manage.py lives)
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")  # Optional: for local development
+
+# Load .env from project root
+load_dotenv(BASE_DIR / ".env")
 
 # ✅ API Keys
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -16,15 +19,13 @@ SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-placeholder-key"  # fallback for local dev
 )
-
+#DEBUG = True
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.environ.get(
     "ALLOWED_HOSTS",
     "localhost,127.0.0.1,codefun-gjne.onrender.com"
 ).split(",")
-
-
 
 # ✅ Installed apps
 INSTALLED_APPS = [
@@ -71,15 +72,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'online_judge.wsgi.application'
 
-# Default: SQLite (local dev)
+# ✅ Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# Override with Postgres if DATABASE_URL is set (Render/production)
 if os.getenv("DATABASE_URL"):
     DATABASES['default'] = dj_database_url.config(
         default=os.getenv("DATABASE_URL"),
