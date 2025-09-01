@@ -1,11 +1,10 @@
-# submissions/urls.py
 from django.urls import path
 from . import views
 
 app_name = 'submissions'
 
 urlpatterns = [
-    # Submissions list - NEW
+    # Submissions list
     path('', views.submission_list, name='submission_list'),
     
     # Submit code for a specific problem
@@ -17,6 +16,6 @@ urlpatterns = [
     # Custom Input/Output runner
     path('problems/<int:problem_id>/run-custom/', views.run_custom, name='run_custom'),
     
-    # AI hint (AJAX endpoint)
-    path("ai-hint/<int:problem_id>/", views.ai_hint, name="ai_hint"),
+    # AI hint (AJAX endpoint) - keep only one
+    path('problems/<int:problem_id>/ai-hint/', views.ai_hint, name='ai_hint'),
 ]

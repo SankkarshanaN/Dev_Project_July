@@ -8,11 +8,10 @@ from django.contrib.auth.models import User
 from submissions.models import Submission, Problem
 from django.db.models import Count
 
-
 @login_required
 def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
-    
+
     # Get or create member profile (important for new users)
     member, created = Member.objects.get_or_create(user=profile_user)
 
