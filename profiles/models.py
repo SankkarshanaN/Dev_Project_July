@@ -2,6 +2,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
+from django.templatetags.static import static
 from django.utils import timezone
 
 def user_profile_path(instance, filename):
@@ -42,4 +43,4 @@ class Member(models.Model):
         """Return profile picture URL or default avatar"""
         if self.profile_picture and hasattr(self.profile_picture, 'url'):
             return self.profile_picture.url
-        return '/static/images/default_avatar.png'
+        return static("images/default_avatar.png")
