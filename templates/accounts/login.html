@@ -1,44 +1,108 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CodeFun</title>
-    <link rel="stylesheet" href="{% load static %}{% static 'css/style.css' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>Sign In - CodeFun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { primary: {400:'#fb923c',500:'#f97316',600:'#ea580c',700:'#c2410c'}, dark: {700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617'} },
+                fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
+            }}
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="auth-body">
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-            <div class="alert 
-                {% if message.tags == 'success' %}alert-success{% endif %}
-                {% if message.tags == 'error' %}alert-error{% endif %}
-                {% if message.tags == 'warning' %}alert-warning{% endif %}
-            ">
-                {{ message }}
+<body class="min-h-full bg-dark-950 font-sans flex">
+    <!-- Left Side: Branding -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-dark-900 via-dark-950 to-dark-900 relative overflow-hidden items-center justify-center p-12">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-20 w-72 h-72 bg-primary-500 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-20 right-20 w-96 h-96 bg-purple-500 rounded-full blur-[150px]"></div>
+        </div>
+        <div class="relative z-10 text-center max-w-md">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center text-white font-bold text-3xl mx-auto mb-8 shadow-lg shadow-primary-500/25">CF</div>
+            <h1 class="text-5xl font-extrabold text-white mb-4">CodeFun</h1>
+            <p class="text-xl text-gray-400 mb-8">Practice. Compete. Improve.</p>
+            <div class="flex flex-col gap-4 text-left">
+                <div class="flex items-center gap-3 text-gray-300">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center"><svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
+                    <span class="text-sm">Solve coding challenges across difficulty levels</span>
+                </div>
+                <div class="flex items-center gap-3 text-gray-300">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+                    <span class="text-sm">Get AI-powered hints when you're stuck</span>
+                </div>
+                <div class="flex items-center gap-3 text-gray-300">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+                    <span class="text-sm">Compete on the leaderboard and track progress</span>
+                </div>
             </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="site-title">
-        <h1>🚀 CODEFUN</h1>
-        <p>Practice · Compete · Improve</p>
+        </div>
     </div>
 
-    <div class="login-box">
-        <h2>Login</h2>
-        <form method="post" action="{% url 'login' %}">
-            {% csrf_token %}
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
+    <!-- Right Side: Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div class="w-full max-w-md">
+            <!-- Mobile logo -->
+            <div class="lg:hidden text-center mb-8">
+                <div class="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">CF</div>
+                <h1 class="text-3xl font-bold text-white">CodeFun</h1>
+            </div>
 
-        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+            <!-- Messages -->
+            {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                <div class="px-4 py-3 rounded-lg text-sm
+                    {% if message.tags == 'success' %}bg-emerald-500/10 border border-emerald-500/30 text-emerald-400
+                    {% elif message.tags == 'error' %}bg-red-500/10 border border-red-500/30 text-red-400
+                    {% else %}bg-blue-500/10 border border-blue-500/30 text-blue-400{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-2">Welcome back</h2>
+                <p class="text-gray-400 mb-8">Sign in to continue your coding journey</p>
+            </div>
+
+            <form method="post" action="{% url 'login' %}" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <input type="text" name="username" required autofocus
+                        class="w-full px-4 py-3 bg-dark-800 border border-dark-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+                        placeholder="Enter your username">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" name="password" required
+                        class="w-full px-4 py-3 bg-dark-800 border border-dark-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+                        placeholder="Enter your password">
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center gap-2 text-gray-400">
+                        <input type="checkbox" class="rounded border-dark-600 bg-dark-800 text-primary-500 focus:ring-primary-500/50">
+                        Remember me
+                    </label>
+                    <a href="{% url 'password_reset' %}" class="text-primary-400 hover:text-primary-300 transition-colors">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 active:scale-[0.98]">
+                    Sign In
+                </button>
+            </form>
+
+            <p class="mt-8 text-center text-sm text-gray-400">
+                Don't have an account?
+                <a href="{% url 'register' %}" class="text-primary-400 hover:text-primary-300 font-medium transition-colors">Create one for free</a>
+            </p>
+        </div>
     </div>
 </body>
 </html>

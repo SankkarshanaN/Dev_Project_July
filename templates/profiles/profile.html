@@ -4,297 +4,235 @@
 {% block title %}{{ profile_user.username }}'s Profile{% endblock %}
 
 {% block content %}
-<style>
-/* Background gradient */
-body {
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-    font-family: 'Poppins', sans-serif;
-}
-
-/* Profile card container */
-.profile-container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 450px;
-    margin: 40px auto;
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    animation: fadeInUp 0.8s ease-in-out;
-}
-
-/* Profile pic */
-.profile-pic {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 4px solid #ff9800;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    margin-bottom: 15px;
-    transition: transform 0.3s ease;
-    object-fit: cover;
-}
-.profile-pic:hover {
-    transform: scale(1.08);
-}
-
-/* Username */
-.profile-container h2 {
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #333;
-}
-
-/* Upload form */
-.upload-form {
-    margin: 20px 0;
-}
-.upload-form label {
-    background: linear-gradient(90deg, #ff7e5f, #feb47b);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: inline-block;
-    margin-bottom: 10px;
-}
-.upload-form label:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-.upload-form input[type="file"] {
-    display: none;
-}
-.upload-form button {
-    padding: 12px 20px;
-    background: linear-gradient(90deg, #43cea2, #185a9d);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.upload-form button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-}
-.upload-form button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* File name display */
-.file-name {
-    margin: 10px 0;
-    font-size: 0.9rem;
-    color: #666;
-    font-style: italic;
-}
-
-/* Stats section */
-.profile-stats {
-    margin-top: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.stat-card {
-    background: #fff;
-    border-radius: 15px;
-    padding: 14px 20px;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    animation: popIn 0.6s ease forwards;
-    opacity: 0;
-}
-.stat-card:nth-child(1) { animation-delay: 0.2s; }
-.stat-card:nth-child(2) { animation-delay: 0.4s; }
-.stat-card:nth-child(3) { animation-delay: 0.6s; }
-.stat-card:nth-child(4) { animation-delay: 0.8s; }
-
-.stat-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-}
-
-/* Error message styling */
-.error-message {
-    color: #e74c3c;
-    background: #fdf2f2;
-    padding: 10px;
-    border-radius: 8px;
-    margin: 10px 0;
-    font-size: 0.9rem;
-    border-left: 3px solid #e74c3c;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@keyframes popIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Icons inside stats */
-.stat-icon {
-    font-size: 1.3rem;
-}
-
-/* Loading state */
-.loading {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-.loading .upload-form button {
-    background: linear-gradient(90deg, #ccc, #aaa);
-}
-</style>
-
-<div class="profile-container">
-    <!-- Profile Picture -->
-    <img class="profile-pic" src="{{ member.profile_picture_url }}" alt="Profile Picture">
-    
-
-    <!-- Username -->
-    <h2>{{ profile_user.username }}</h2>
-
-    <!-- Upload form (only for profile owner) -->
-    {% if request.user == profile_user and form %}
-    <div class="upload-form" id="uploadForm">
-        <form method="POST" enctype="multipart/form-data" id="profileForm">
-            {% csrf_token %}
-            
-            <!-- Custom file input -->
-            <label for="id_profile_picture" id="fileLabel">📸 Choose New Picture</label>
-            {{ form.profile_picture }}
-            
-            <!-- Display selected file name -->
-            <div class="file-name" id="fileName" style="display: none;"></div>
-            
-            <!-- Form errors -->
-            {% if form.profile_picture.errors %}
-                <div class="error-message">
-                    {% for error in form.profile_picture.errors %}
-                        {{ error }}
-                    {% endfor %}
+<div class="max-w-4xl mx-auto">
+    <!-- Profile Header Card -->
+    <div class="bg-dark-800/50 rounded-2xl border border-dark-700 overflow-hidden mb-8">
+        <!-- Gradient Banner -->
+        <div class="h-32 bg-gradient-to-r from-primary-600 via-primary-500 to-amber-500 relative">
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.08%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50"></div>
+        </div>
+        
+        <div class="px-8 pb-8">
+            <!-- Avatar positioned over banner -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-end gap-6 -mt-16 relative z-10">
+                <img class="w-32 h-32 rounded-2xl border-4 border-dark-800 shadow-xl object-cover bg-dark-700" 
+                     src="{{ member.profile_picture_url }}" 
+                     alt="{{ profile_user.username }}'s profile picture"
+                     id="profilePic"
+                     onerror="this.src='{% static "images/default_avatar.png" %}'">
+                <div class="text-center sm:text-left mb-2">
+                    <h1 class="text-2xl font-bold text-white">{{ profile_user.username }}</h1>
+                    <p class="text-sm text-gray-400 mt-1">Joined {{ member.join_date|date:"F Y" }}</p>
                 </div>
-            {% endif %}
-            
-            <button type="submit" id="submitBtn" disabled>🚀 Update Profile Picture</button>
-        </form>
-    </div>
-    {% endif %}
+            </div>
 
-    <!-- Stats -->
-    <div class="profile-stats">
-        <div class="stat-card">
-            <span class="stat-icon">📅</span> 
-            Joined: {{ member.join_date|date:"F d, Y" }}
+            <!-- Upload Form (owner only) -->
+            {% if request.user == profile_user and form %}
+            <div class="mt-6 p-4 bg-dark-700/50 rounded-xl border border-dark-600" id="uploadForm">
+                <form method="POST" enctype="multipart/form-data" id="profileForm" class="flex flex-wrap items-center gap-3">
+                    {% csrf_token %}
+                    <label for="id_profile_picture" id="fileLabel" class="inline-flex items-center gap-2 px-4 py-2 bg-dark-600 hover:bg-dark-500 text-gray-300 text-sm font-medium rounded-lg border border-dark-500 cursor-pointer transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Choose Picture
+                    </label>
+                    <div class="hidden">{{ form.profile_picture }}</div>
+                    <span class="text-sm text-gray-500 italic hidden" id="fileName"></span>
+                    {% if form.profile_picture.errors %}
+                    <span class="text-sm text-red-400">{% for error in form.profile_picture.errors %}{{ error }}{% endfor %}</span>
+                    {% endif %}
+                    <button type="submit" id="submitBtn" disabled
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Upload
+                    </button>
+                </form>
+            </div>
+            {% endif %}
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">🏆</span> 
-            Problems Solved: {{ member.problems_solved }}
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-5 text-center">
+            <div class="w-10 h-10 mx-auto mb-3 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <p class="text-2xl font-bold text-white">{{ member.problems_solved }}</p>
+            <p class="text-xs text-gray-500 mt-1">Problems Solved</p>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">📊</span> 
-            Total Submissions: {{ member.total_submissions }}
+        <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-5 text-center">
+            <div class="w-10 h-10 mx-auto mb-3 rounded-lg bg-primary-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            </div>
+            <p class="text-2xl font-bold text-white">{{ points }}</p>
+            <p class="text-xs text-gray-500 mt-1">Total Points</p>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">💻</span> 
-            Favorite Language: {{ favorite_language|default:"Not set" }}
+        <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-5 text-center">
+            <div class="w-10 h-10 mx-auto mb-3 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <p class="text-2xl font-bold text-white">{{ member.total_submissions }}</p>
+            <p class="text-xs text-gray-500 mt-1">Submissions</p>
         </div>
+        <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-5 text-center">
+            <div class="w-10 h-10 mx-auto mb-3 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            </div>
+            <p class="text-2xl font-bold text-white">{{ favorite_language|default:"N/A" }}</p>
+            <p class="text-xs text-gray-500 mt-1">Top Language</p>
+        </div>
+    </div>
+
+    <!-- All Submissions -->
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-dark-600 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-white">
+                Submissions
+                {% if submissions_page.paginator.count %}
+                <span class="ml-2 text-sm font-normal text-gray-400">({{ submissions_page.paginator.count }} total)</span>
+                {% endif %}
+            </h2>
+        </div>
+
+        {% if submissions_page.object_list %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-dark-600">
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Problem</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Language</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-36">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-36">Submitted</th>
+                        {% if request.user == profile_user %}
+                        <th class="px-6 py-3 w-16"></th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dark-700">
+                    {% for sub in submissions_page %}
+                    <tr class="hover:bg-dark-700/40 transition-colors">
+                        <!-- Row number -->
+                        <td class="px-6 py-3 text-xs text-gray-600 font-mono">
+                            {{ submissions_page.start_index|add:forloop.counter0 }}
+                        </td>
+                        <!-- Problem -->
+                        <td class="px-6 py-3">
+                            <a href="{% url 'problem_detail' sub.problem.id %}" class="text-sm text-gray-200 hover:text-primary-400 transition-colors font-medium">
+                                {{ sub.problem.title }}
+                            </a>
+                            <span class="ml-2 text-xs px-1.5 py-0.5 rounded
+                                {% if sub.problem.difficulty == 'Easy' %}bg-emerald-500/10 text-emerald-400
+                                {% elif sub.problem.difficulty == 'Medium' %}bg-amber-500/10 text-amber-400
+                                {% else %}bg-red-500/10 text-red-400{% endif %}">
+                                {{ sub.problem.difficulty }}
+                            </span>
+                        </td>
+                        <!-- Language -->
+                        <td class="px-6 py-3">
+                            <span class="text-xs text-gray-400 bg-dark-600 px-2 py-0.5 rounded border border-dark-500 font-mono">{{ sub.language }}</span>
+                        </td>
+                        <!-- Status -->
+                        <td class="px-6 py-3">
+                            <span class="inline-flex items-center gap-1.5 text-sm font-semibold
+                                {% if sub.result == 'Accepted' %}text-emerald-400
+                                {% elif sub.result == 'Wrong Answer' %}text-red-400
+                                {% elif sub.result == 'Runtime Error' %}text-amber-400
+                                {% else %}text-gray-400{% endif %}">
+                                {% if sub.result == 'Accepted' %}
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                {% elif sub.result == 'Wrong Answer' %}
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                                {% else %}
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                {% endif %}
+                                {{ sub.result }}
+                            </span>
+                        </td>
+                        <!-- Time -->
+                        <td class="px-6 py-3 text-sm text-gray-500" title="{{ sub.submitted_at|date:'Y-m-d H:i' }}">
+                            {{ sub.submitted_at|timesince }} ago
+                        </td>
+                        <!-- Detail link (owner only) -->
+                        {% if request.user == profile_user %}
+                        <td class="px-4 py-3 text-right">
+                            <a href="{% url 'submissions:submission_detail' sub.id %}" class="text-xs text-gray-500 hover:text-primary-400 transition-colors" title="View code">
+                                <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if submissions_page.has_other_pages %}
+        <div class="px-6 py-4 border-t border-dark-600 flex items-center justify-between">
+            <p class="text-sm text-gray-500">
+                Showing {{ submissions_page.start_index }}–{{ submissions_page.end_index }} of {{ submissions_page.paginator.count }}
+            </p>
+            <div class="flex items-center gap-1">
+                {% if submissions_page.has_previous %}
+                <a href="?page={{ submissions_page.previous_page_number }}" class="px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 rounded-lg border border-dark-600 transition-colors">&larr; Prev</a>
+                {% endif %}
+                {% for num in submissions_page.paginator.page_range %}
+                    {% if submissions_page.number == num %}
+                    <span class="px-3 py-1.5 text-sm font-semibold text-white bg-primary-600 rounded-lg border border-primary-500">{{ num }}</span>
+                    {% elif num == 1 or num == submissions_page.paginator.num_pages or num|add:"-1" == submissions_page.number or num|add:"1" == submissions_page.number %}
+                    <a href="?page={{ num }}" class="px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 rounded-lg border border-dark-600 transition-colors">{{ num }}</a>
+                    {% elif num|add:"-2" == submissions_page.number or num|add:"2" == submissions_page.number %}
+                    <span class="px-2 text-gray-600">…</span>
+                    {% endif %}
+                {% endfor %}
+                {% if submissions_page.has_next %}
+                <a href="?page={{ submissions_page.next_page_number }}" class="px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 rounded-lg border border-dark-600 transition-colors">Next &rarr;</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="p-12 text-center">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-dark-700 flex items-center justify-center">
+                <svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <p class="text-gray-500">No submissions yet</p>
+            {% if request.user == profile_user %}
+            <a href="{% url 'problem_list' %}" class="mt-3 inline-block text-sm text-primary-400 hover:text-primary-300 transition-colors">Browse problems &rarr;</a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('id_profile_picture');
-    const fileLabel = document.getElementById('fileLabel');
     const fileName = document.getElementById('fileName');
     const submitBtn = document.getElementById('submitBtn');
-    const profileForm = document.getElementById('profileForm');
-    const uploadForm = document.getElementById('uploadForm');
+    const fileLabel = document.getElementById('fileLabel');
     
     if (fileInput) {
-        // Handle file selection
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validate file type
-                if (!file.type.startsWith('image/')) {
-                    alert('Please select an image file.');
-                    fileInput.value = '';
-                    fileName.style.display = 'none';
-                    submitBtn.disabled = true;
-                    return;
-                }
-                
-                // Validate file size (5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('File size must be less than 5MB.');
-                    fileInput.value = '';
-                    fileName.style.display = 'none';
-                    submitBtn.disabled = true;
-                    return;
-                }
-                
-                // Show file name and enable submit
-                fileName.textContent = `Selected: ${file.name}`;
-                fileName.style.display = 'block';
+                if (!file.type.startsWith('image/')) { alert('Please select an image file.'); fileInput.value = ''; return; }
+                if (file.size > 5 * 1024 * 1024) { alert('File size must be less than 5MB.'); fileInput.value = ''; return; }
+                fileName.textContent = file.name;
+                fileName.classList.remove('hidden');
                 submitBtn.disabled = false;
-                fileLabel.textContent = '📸 Change Picture';
             } else {
-                fileName.style.display = 'none';
+                fileName.classList.add('hidden');
                 submitBtn.disabled = true;
-                fileLabel.textContent = '📸 Choose New Picture';
             }
         });
-        
-        // Handle form submission
-        profileForm.addEventListener('submit', function(e) {
-            if (!fileInput.files[0]) {
-                e.preventDefault();
-                alert('Please select a file first.');
-                return;
-            }
-            
-            // Add loading state
-            uploadForm.classList.add('loading');
-            submitBtn.textContent = '⏳ Uploading...';
+
+        document.getElementById('profileForm')?.addEventListener('submit', function() {
+            if (!fileInput.files[0]) { e.preventDefault(); return; }
+            submitBtn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Uploading...';
             submitBtn.disabled = true;
-        });
-        
-        // Reset form state if there are errors
-        if (document.querySelector('.error-message')) {
-            uploadForm.classList.remove('loading');
-            submitBtn.textContent = '🚀 Update Profile Picture';
-            if (fileInput.files[0]) {
-                submitBtn.disabled = false;
-            }
-        }
-    }
-    
-    // Handle profile picture loading errors
-    const profilePic = document.querySelector('.profile-pic');
-    const defaultAvatarUrl = '{% static "images/default_avatar.png" %}';
-    if (profilePic) {
-        profilePic.addEventListener('error', function() {
-            this.src = defaultAvatarUrl;
         });
     }
 });

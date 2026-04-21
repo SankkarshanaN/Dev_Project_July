@@ -1,94 +1,165 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CodeFun - Online Judge{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50:'#fff7ed',100:'#ffedd5',200:'#fed7aa',300:'#fdba74',400:'#fb923c',500:'#f97316',600:'#ea580c',700:'#c2410c',800:'#9a3412',900:'#7c2d12' },
+                        dark: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        /* Smooth transitions */
+        .nav-link-custom { position: relative; }
+        .nav-link-custom::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #f97316; transition: width 0.3s ease; }
+        .nav-link-custom:hover::after { width: 100%; }
+        /* Glassmorphism card */
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body>
-    {% if not request.path == '/accounts/login/' and not request.path == '/accounts/register/' %}
+<body class="min-h-full bg-dark-950 text-gray-100 font-sans">
     <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-left">
-            <a href="{% url 'dashboard' %}" class="nav-link">🏠 Home</a>
-            <a href="{% url 'problem_list' %}" class="nav-link">📝 Problems</a>
-            <a href="{% url 'leaderboard' %}" class="nav-link">🏆 Leaderboard</a>
-        </div>
-
-        <div class="nav-center">
-            <h1 class="brand">CodeFun</h1>
-        </div>
-        
-        <div class="nav-right">
-            {% if user.is_authenticated %}
-                <div class="dropdown">
-                    <button class="dropbtn">
-                        <img src="{{ user.member.profile_picture_url }}" alt="Profile" class="profile-icon">
-
-                    </button>
-                    <div class="dropdown-content">
-                        <a href="{% url 'profile' user.username %}">👤 Profile</a>
-                        <form method="post" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="logout-btn">🚪 Logout</button>
-                        </form>
+    <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-md border-b border-dark-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Left: Brand + Links -->
+                <div class="flex items-center gap-8">
+                    <a href="{% url 'dashboard' %}" class="flex items-center gap-2 group">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform">CF</div>
+                        <span class="text-xl font-bold bg-gradient-to-r from-primary-400 to-primary-500 bg-clip-text text-transparent">CodeFun</span>
+                    </a>
+                    <div class="hidden md:flex items-center gap-1">
+                        <a href="{% url 'dashboard' %}" class="nav-link-custom px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-dark-800">Dashboard</a>
+                        <a href="{% url 'problem_list' %}" class="nav-link-custom px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-dark-800">Problems</a>
+                        <a href="{% url 'leaderboard' %}" class="nav-link-custom px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-dark-800">Leaderboard</a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'submissions:submission_list' %}" class="nav-link-custom px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-dark-800">My Submissions</a>
+                        {% endif %}
                     </div>
                 </div>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn-nav">Login</a>
-                <a href="{% url 'register' %}" class="btn-nav">Register</a>
-            {% endif %}
+
+                <!-- Right: User Menu -->
+                <div class="flex items-center gap-4">
+                    {% if user.is_authenticated %}
+                    <div class="relative" id="userMenu">
+                        <button id="userMenuBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-dark-800 hover:bg-dark-700 border border-dark-600 transition-all">
+                            <img src="{{ user.member.profile_picture_url }}" alt="Profile" class="w-7 h-7 rounded-full object-cover ring-2 ring-primary-500/50" onerror="this.src='{% static "images/default_avatar.png" %}'">
+                            <span class="text-sm font-medium text-gray-200 hidden sm:inline">{{ user.username }}</span>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-52 bg-dark-800 border border-dark-600 rounded-xl shadow-2xl py-2 z-50">
+                            <div class="px-4 py-2 border-b border-dark-600">
+                                <p class="text-sm font-semibold text-white">{{ user.username }}</p>
+                                <p class="text-xs text-gray-400">{{ user.email }}</p>
+                            </div>
+                            <a href="{% url 'profile' user.username %}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                Profile
+                            </a>
+                            <a href="{% url 'submissions:submission_list' %}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                My Submissions
+                            </a>
+                            <div class="border-t border-dark-600 mt-1 pt-1">
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-dark-700 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                        Sign Out
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Sign In</a>
+                    <a href="{% url 'register' %}" class="px-4 py-2 text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white rounded-lg transition-colors">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden border-t border-dark-700/50 px-4 py-2 flex gap-1 overflow-x-auto">
+            <a href="{% url 'dashboard' %}" class="px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-dark-800 rounded-lg whitespace-nowrap">Dashboard</a>
+            <a href="{% url 'problem_list' %}" class="px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-dark-800 rounded-lg whitespace-nowrap">Problems</a>
+            <a href="{% url 'leaderboard' %}" class="px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-dark-800 rounded-lg whitespace-nowrap">Leaderboard</a>
         </div>
     </nav>
-    {% endif %}
 
-    <!-- Messages -->
+    <!-- Flash Messages -->
     {% if messages %}
-    <div class="messages">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2" id="messages">
         {% for message in messages %}
-            <div class="message {{ message.tags }}">{{ message }}</div>
+        <div class="flex items-center gap-3 px-4 py-3 rounded-lg border transition-all duration-300
+            {% if message.tags == 'success' %}bg-emerald-500/10 border-emerald-500/30 text-emerald-400
+            {% elif message.tags == 'error' %}bg-red-500/10 border-red-500/30 text-red-400
+            {% elif message.tags == 'warning' %}bg-amber-500/10 border-amber-500/30 text-amber-400
+            {% else %}bg-blue-500/10 border-blue-500/30 text-blue-400{% endif %}">
+            {% if message.tags == 'success' %}<svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {% elif message.tags == 'error' %}<svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            {% else %}<svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>{% endif %}
+            <span class="text-sm">{{ message }}</span>
+        </div>
         {% endfor %}
     </div>
+    <script>setTimeout(()=>{const m=document.getElementById('messages');if(m)m.style.opacity='0';setTimeout(()=>{if(m)m.remove()},500)},4000);</script>
     {% endif %}
 
     <!-- Main Content -->
-    <main class="content">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer -->
+    <footer class="border-t border-dark-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-gradient-to-br from-primary-500 to-primary-600 rounded flex items-center justify-center text-white font-bold text-xs">CF</div>
+                    <span class="text-sm text-gray-500">CodeFun &copy; 2026</span>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-gray-600">
+                    <span>Practice. Compete. Improve.</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dropdown JS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const profileBtn = document.querySelector('.dropbtn');
-            const dropdownContent = document.querySelector('.dropdown-content');
-
-            if (profileBtn && dropdownContent) {
-                profileBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownContent.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function(e) {
-                    if (!dropdownContent.contains(e.target) && !profileBtn.contains(e.target)) {
-                        dropdownContent.classList.remove('show');
-                    }
-                });
-            }
-
-            // Handle image loading errors for all profile pictures
-            const profileImages = document.querySelectorAll('img[alt="Profile"], img[alt="Profile Picture"]');
-            const defaultAvatarUrl = '{% static "images/default_avatar.png" %}';
-            profileImages.forEach(function(img) {
-                img.addEventListener('error', function() {
-                    this.src = defaultAvatarUrl;
-                });
-            });
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('userMenuBtn');
+        const dropdown = document.getElementById('userDropdown');
+        if (btn && dropdown) {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); });
+            document.addEventListener('click', (e) => { if (!dropdown.contains(e.target) && !btn.contains(e.target)) dropdown.classList.add('hidden'); });
+        }
+    });
     </script>
     {% block extra_scripts %}{% endblock %}
 </body>
