@@ -133,7 +133,7 @@ def execute_code(language, code, user_input=""):
         sandbox_path = _to_docker_path(tmpdir)
 
         docker_cmd = [
-            "docker", "run", "--rm",
+            "docker", "run", "--rm", "-i",
             "--network", "none",
             "--memory", "256m",
             "--memory-swap", "256m",
