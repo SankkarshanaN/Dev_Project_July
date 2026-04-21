@@ -1,30 +1,130 @@
 
-<!-- dashboard.html -->
 {% extends 'base.html' %}
 {% block title %}Dashboard - CodeFun{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Banner -->
-    <div class="banner">
-        <h1 class="banner-title">🚀 Welcome to <span>CodeFun</span></h1>
-        <p class="banner-quote">"Eat. Sleep. Code. Repeat."</p>
+<!-- Welcome Banner -->
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600/20 via-primary-500/10 to-purple-600/20 border border-primary-500/20 p-8 mb-8">
+    <div class="absolute inset-0 opacity-5">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-primary-500 rounded-full blur-[100px]"></div>
+    </div>
+    <div class="relative">
+        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">
+            Welcome back, <span class="bg-gradient-to-r from-primary-400 to-primary-500 bg-clip-text text-transparent">{{ user.username }}</span>
+        </h1>
+        <p class="text-gray-400 text-lg">Here's your coding journey at a glance.</p>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Problems Solved -->
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-6 hover:border-emerald-500/30 transition-colors group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white mb-1">{{ problems_solved|default:0 }}</div>
+        <div class="text-sm text-gray-400">Problems Solved</div>
     </div>
 
-    <!-- Stats Card -->
-    <div class="dashboard-card">
-        <h2>Welcome back, {{ user.username }}! 👋</h2>
-        <p>Here's your coding journey so far:</p>
-        <ul>
-            <li>🧩 Problems Solved: <strong>{{ problems_solved|default:0 }}</strong></li>
-            <li>⭐ Points Earned: <strong>{{ points|default:0 }}</strong></li>
-        </ul>
-        <h3>▶️ Continue where you left off</h3>
+    <!-- Points -->
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-6 hover:border-primary-500/30 transition-colors group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white mb-1">{{ points|default:0 }}</div>
+        <div class="text-sm text-gray-400">Points Earned</div>
+    </div>
+
+    <!-- Submissions -->
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-6 hover:border-blue-500/30 transition-colors group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white mb-1">{{ user.submission_set.count|default:0 }}</div>
+        <div class="text-sm text-gray-400">Total Submissions</div>
+    </div>
+
+    <!-- Rank placeholder -->
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-6 hover:border-purple-500/30 transition-colors group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white mb-1">
+            {% if problems_solved > 0 %}Active{% else %}New{% endif %}
+        </div>
+        <div class="text-sm text-gray-400">Status</div>
+    </div>
+</div>
+
+<!-- Quick Actions & Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Quick Actions -->
+    <div class="lg:col-span-1 bg-dark-800/50 rounded-xl border border-dark-700 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+        <div class="space-y-3">
+            <a href="{% url 'problem_list' %}" class="flex items-center gap-3 p-3 rounded-lg bg-dark-700/50 hover:bg-dark-700 border border-dark-600 hover:border-primary-500/30 transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center group-hover:bg-primary-500/20 transition-colors">
+                    <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-white">Solve Problems</div>
+                    <div class="text-xs text-gray-500">Browse all challenges</div>
+                </div>
+            </a>
+            <a href="{% url 'submissions:submission_list' %}" class="flex items-center gap-3 p-3 rounded-lg bg-dark-700/50 hover:bg-dark-700 border border-dark-600 hover:border-blue-500/30 transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-white">My Submissions</div>
+                    <div class="text-xs text-gray-500">View submission history</div>
+                </div>
+            </a>
+            <a href="{% url 'leaderboard' %}" class="flex items-center gap-3 p-3 rounded-lg bg-dark-700/50 hover:bg-dark-700 border border-dark-600 hover:border-purple-500/30 transition-all group">
+                <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-white">Leaderboard</div>
+                    <div class="text-xs text-gray-500">See top performers</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="lg:col-span-2 bg-dark-800/50 rounded-xl border border-dark-700 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Recent Activity</h3>
         {% if recent_activity %}
-            <p>{{ recent_activity }}</p>
+            <div class="flex items-center gap-3 p-4 rounded-lg bg-dark-700/30 border border-dark-600">
+                <div class="w-10 h-10 rounded-full bg-primary-500/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-300">{{ recent_activity }}</p>
+                </div>
+            </div>
         {% else %}
-            <p>Ready to start your coding adventure? Check out our problems!</p>
-            <a href="{% url 'problem_list' %}" class="btn" style="margin-top: 10px;">🚀 Start Solving</a>
+            <div class="text-center py-12">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-dark-700 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                </div>
+                <h4 class="text-lg font-medium text-gray-400 mb-2">No activity yet</h4>
+                <p class="text-sm text-gray-500 mb-4">Start solving problems to see your progress here</p>
+                <a href="{% url 'problem_list' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                    Start Solving
+                </a>
+            </div>
         {% endif %}
     </div>
 </div>

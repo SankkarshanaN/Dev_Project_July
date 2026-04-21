@@ -1,48 +1,120 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - CodeFun</title>
-    <link rel="stylesheet" href="{% load static %}{% static 'css/style.css' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { primary: {400:'#fb923c',500:'#f97316',600:'#ea580c',700:'#c2410c'}, dark: {600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617'} },
+                fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
+            }}
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="auth-body">
-    <div class="site-title">
-        <h1>🚀 CODEFUN</h1>
-        <p>Practice · Compete · Improve</p>
+<body class="min-h-full bg-dark-950 font-sans flex">
+    <!-- Left Side: Branding (same as login) -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-dark-900 via-dark-950 to-dark-900 relative overflow-hidden items-center justify-center p-12">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-20 w-72 h-72 bg-primary-500 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-20 right-20 w-96 h-96 bg-purple-500 rounded-full blur-[150px]"></div>
+        </div>
+        <div class="relative z-10 text-center max-w-md">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center text-white font-bold text-3xl mx-auto mb-8 shadow-lg shadow-primary-500/25">CF</div>
+            <h1 class="text-5xl font-extrabold text-white mb-4">CodeFun</h1>
+            <p class="text-xl text-gray-400 mb-8">Join thousands of developers sharpening their skills</p>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div class="bg-dark-800/50 rounded-xl p-4 border border-dark-700">
+                    <div class="text-2xl font-bold text-primary-400">4</div>
+                    <div class="text-xs text-gray-500 mt-1">Languages</div>
+                </div>
+                <div class="bg-dark-800/50 rounded-xl p-4 border border-dark-700">
+                    <div class="text-2xl font-bold text-emerald-400">AI</div>
+                    <div class="text-xs text-gray-500 mt-1">Hints</div>
+                </div>
+                <div class="bg-dark-800/50 rounded-xl p-4 border border-dark-700">
+                    <div class="text-2xl font-bold text-purple-400">Live</div>
+                    <div class="text-xs text-gray-500 mt-1">Judging</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="login-box">
-        <h2>Register</h2>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
+    <!-- Right Side: Register Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div class="w-full max-w-md">
+            <!-- Mobile logo -->
+            <div class="lg:hidden text-center mb-8">
+                <div class="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">CF</div>
+                <h1 class="text-3xl font-bold text-white">CodeFun</h1>
+            </div>
 
-            {{ form.username.errors }}
-            {{ form.username }}
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-2">Create your account</h2>
+                <p class="text-gray-400 mb-8">Start solving problems and level up your skills</p>
+            </div>
 
-            {{ form.email.errors }}
-            {{ form.email }}
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
 
-            {{ form.password1.errors }}
-            {{ form.password1 }}
-            
-            <ul class="password-rules">
-                <li>At least 8 characters</li>
-                <li>One uppercase & one lowercase</li>
-                <li>At least 1 number</li>
-                <li>At least 1 special character (!@#$%)</li>
-            </ul>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    {% if form.username.errors %}<p class="text-red-400 text-xs mb-1">{% for e in form.username.errors %}{{ e }}{% endfor %}</p>{% endif %}
+                    <input type="text" name="username" value="{{ form.username.value|default:'' }}" required
+                        class="w-full px-4 py-3 bg-dark-800 border {% if form.username.errors %}border-red-500{% else %}border-dark-600{% endif %} rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+                        placeholder="Choose a username">
+                </div>
 
-            {{ form.password2.errors }}
-            {{ form.password2 }}
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    {% if form.email.errors %}<p class="text-red-400 text-xs mb-1">{% for e in form.email.errors %}{{ e }}{% endfor %}</p>{% endif %}
+                    <input type="email" name="email" value="{{ form.email.value|default:'' }}" required
+                        class="w-full px-4 py-3 bg-dark-800 border {% if form.email.errors %}border-red-500{% else %}border-dark-600{% endif %} rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+                        placeholder="you@example.com">
+                </div>
 
-            <button type="submit">Register</button>
-        </form>
-        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    {% if form.password1.errors %}<p class="text-red-400 text-xs mb-1">{% for e in form.password1.errors %}{{ e }}{% endfor %}</p>{% endif %}
+                    <input type="password" name="password1" required
+                        class="w-full px-4 py-3 bg-dark-800 border {% if form.password1.errors %}border-red-500{% else %}border-dark-600{% endif %} rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+                        placeholder="Create a strong password">
+                    <div class="mt-2 grid grid-cols-2 gap-1 text-xs text-gray-500">
+                        <span>&#x2022; At least 8 characters</span>
+                        <span>&#x2022; One uppercase letter</span>
+                        <span>&#x2022; At least 1 number</span>
+                        <span>&#x2022; One special character</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+                    {% if form.password2.errors %}<p class="text-red-400 text-xs mb-1">{% for e in form.password2.errors %}{{ e }}{% endfor %}</p>{% endif %}
+                    <input type="password" name="password2" required
+                        class="w-full px-4 py-3 bg-dark-800 border {% if form.password2.errors %}border-red-500{% else %}border-dark-600{% endif %} rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+                        placeholder="Confirm your password">
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 active:scale-[0.98]">
+                    Create Account
+                </button>
+            </form>
+
+            <p class="mt-8 text-center text-sm text-gray-400">
+                Already have an account?
+                <a href="{% url 'login' %}" class="text-primary-400 hover:text-primary-300 font-medium transition-colors">Sign in</a>
+            </p>
+        </div>
     </div>
 </body>
 </html>

@@ -1,128 +1,169 @@
-<!-- submission_detail.html -->
 {% extends "base.html" %}
 {% block title %}Submission #{{ submission.id }} - CodeFun{% endblock %}
 
 {% block extra_head %}
-<style>
-  .action-buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  .btn {
-    padding: .5rem 1rem;
-    text-decoration: none;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: #fff;
-    color: #333;
-    transition: all 0.2s;
-  }
-  .btn:hover {
-    background: #f0f0f0;
-    text-decoration: none;
-  }
-  .btn-primary {
-    background: #007bff;
-    border-color: #007bff;
-    color: white;
-  }
-  .btn-primary:hover {
-    background: #0056b3;
-    border-color: #0056b3;
-    color: white;
-  }
-  .btn-secondary {
-    background: #6c757d;
-    border-color: #6c757d;
-    color: white;
-  }
-  .btn-secondary:hover {
-    background: #545b62;
-    border-color: #545b62;
-    color: white;
-  }
-</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>📋 Submission #{{ submission.id }}</h2>
-    <div class="mb-2">
-        <p><strong>Problem:</strong> 
-            <a href="{% url 'problem_detail' submission.problem.id %}">
-                {{ submission.problem.title }}
-            </a>
-        </p>
-        <p><strong>Language:</strong> {{ submission.language }}</p>
-        <p><strong>Status:</strong> 
-            <span class="status {% if submission.result == 'Accepted' %}accepted{% else %}rejected{% endif %}">
-                {% if submission.result == 'Accepted' %}✅{% else %}❌{% endif %} {{ submission.result }}
-            </span>
-        </p>
-        <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+<!-- Breadcrumb -->
+<div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+    <a href="{% url 'problem_list' %}" class="hover:text-primary-400 transition-colors">Problems</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <a href="{% url 'problem_detail' submission.problem.id %}" class="hover:text-primary-400 transition-colors">{{ submission.problem.title }}</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <span class="text-gray-400">Submission #{{ submission.id }}</span>
+</div>
+
+<!-- Header -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Submission #{{ submission.id }}</h1>
+        <p class="text-sm text-gray-400 mt-1">{{ submission.submitted_at|date:"M d, Y · H:i" }}</p>
     </div>
-
-    <h3>💻 Your Code:</h3>
-    <div class="code-block">
-        <pre><code class="language-{{ submission.language|lower }}">{{ submission.code }}</code></pre>
-    </div>
-
-    {% if submission.error %}
-        <h3>⚠️ Error Message:</h3>
-        <div class="error-block"><pre>{{ submission.error }}</pre></div>
-    {% endif %}
-
-    <h3>🧪 Test Case Results (Sample Only):</h3>
-    {% if results %}
-        <div class="styled-table">
-            <table class="test-results-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Input</th>
-                        <th>Expected Output</th>
-                        <th>Your Output</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in results %}
-                        {% if r.test_case.is_sample %}
-                        <tr class="{% if r.passed %}passed{% else %}failed{% endif %}">
-                            <td>{{ forloop.counter }}</td>
-                            <td><pre>{{ r.test_case.input_data }}</pre></td>
-                            <td><pre>{{ r.test_case.output_data }}</pre></td>
-                            <td><pre>{{ r.user_output }}</pre></td>
-                            <td>
-                                {% if r.passed %}✅ Passed{% else %}❌ Failed{% endif %}
-                            </td>
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <p>🔍 No test case results found.</p>
-    {% endif %}
-
-    <div class="mt-3">
-      <div class="action-buttons">
-        <a href="{% url 'problem_detail' submission.problem.id %}" class="btn btn-primary">
-          🔙 Back to Problem
-        </a>
-        {% if submission.result == 'Accepted' %}
-          <a href="{% url 'problem_list' %}" class="btn btn-secondary">
-            📝 Try Another Problem
-          </a>
-        {% endif %}
-      </div>
+    <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
+            {% if submission.result == 'Accepted' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+            {% elif submission.result == 'Wrong Answer' %}bg-red-500/10 text-red-400 border border-red-500/20
+            {% else %}bg-amber-500/10 text-amber-400 border border-amber-500/20{% endif %}">
+            {% if submission.result == 'Accepted' %}
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {% elif submission.result == 'Wrong Answer' %}
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            {% else %}
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            {% endif %}
+            {{ submission.result }}
+        </span>
     </div>
 </div>
 
-<!-- Highlight.js -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
+<!-- Info Cards -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Problem</p>
+        <a href="{% url 'problem_detail' submission.problem.id %}" class="text-sm font-medium text-primary-400 hover:text-primary-300 transition-colors">{{ submission.problem.title }}</a>
+    </div>
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Language</p>
+        <p class="text-sm font-medium text-gray-200">{{ submission.language }}</p>
+    </div>
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Verdict</p>
+        <p class="text-sm font-medium {% if submission.result == 'Accepted' %}text-emerald-400{% elif submission.result == 'Wrong Answer' %}text-red-400{% else %}text-amber-400{% endif %}">{{ submission.result }}</p>
+    </div>
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Submitted</p>
+        <p class="text-sm font-medium text-gray-200">{{ submission.submitted_at|timesince }} ago</p>
+    </div>
+</div>
+
+<!-- Code Block -->
+<div class="bg-dark-800/50 rounded-xl border border-dark-700 overflow-hidden mb-8">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-dark-600">
+        <h2 class="text-sm font-semibold text-gray-300">Your Code</h2>
+        <button id="copy-code" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 rounded-lg border border-dark-600 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            Copy
+        </button>
+    </div>
+    <div class="p-0">
+        <pre class="!m-0 !rounded-none"><code id="user-code" class="language-{{ submission.language|lower }}">{{ submission.code }}</code></pre>
+    </div>
+</div>
+
+<!-- Error Block -->
+{% if submission.error %}
+<div class="bg-red-500/5 rounded-xl border border-red-500/20 overflow-hidden mb-8">
+    <div class="px-5 py-3 border-b border-red-500/20">
+        <h2 class="text-sm font-semibold text-red-400 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            Error Output
+        </h2>
+    </div>
+    <div class="p-5">
+        <pre class="text-sm text-red-300 font-mono whitespace-pre-wrap">{{ submission.error }}</pre>
+    </div>
+</div>
+{% endif %}
+
+<!-- Test Results -->
+<div class="bg-dark-800/50 rounded-xl border border-dark-700 overflow-hidden mb-8">
+    <div class="px-5 py-3 border-b border-dark-600">
+        <h2 class="text-sm font-semibold text-gray-300">Test Case Results (Sample Only)</h2>
+    </div>
+    {% if results %}
+    <table class="w-full">
+        <thead>
+            <tr class="border-b border-dark-600">
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-12">#</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Input</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Expected</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Output</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Status</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-dark-700">
+            {% for r in results %}
+            {% if r.test_case.is_sample %}
+            <tr class="{% if r.passed %}bg-emerald-500/5{% else %}bg-red-500/5{% endif %}">
+                <td class="px-5 py-3 text-sm text-gray-500 font-mono">{{ forloop.counter }}</td>
+                <td class="px-5 py-3"><pre class="text-sm text-gray-300 font-mono whitespace-pre-wrap m-0 bg-transparent p-0">{{ r.test_case.input_data }}</pre></td>
+                <td class="px-5 py-3"><pre class="text-sm text-gray-300 font-mono whitespace-pre-wrap m-0 bg-transparent p-0">{{ r.test_case.output_data }}</pre></td>
+                <td class="px-5 py-3"><pre class="text-sm {% if r.passed %}text-emerald-400{% else %}text-red-400{% endif %} font-mono whitespace-pre-wrap m-0 bg-transparent p-0">{{ r.user_output }}</pre></td>
+                <td class="px-5 py-3">
+                    {% if r.passed %}
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-400">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Passed
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-red-400">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        Failed
+                    </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="p-8 text-center text-gray-500">
+        <p>No test case results found.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Actions -->
+<div class="flex items-center gap-3">
+    <a href="{% url 'problem_detail' submission.problem.id %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium rounded-lg transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Back to Problem
+    </a>
+    {% if submission.result == 'Accepted' %}
+    <a href="{% url 'problem_list' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-dark-700 hover:bg-dark-600 text-gray-300 text-sm font-medium rounded-lg border border-dark-600 transition-colors">
+        Try Another Problem
+    </a>
+    {% endif %}
+    <a href="{% url 'submissions:submission_list' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-dark-700 hover:bg-dark-600 text-gray-300 text-sm font-medium rounded-lg border border-dark-600 transition-colors">
+        All Submissions
+    </a>
+</div>
+
+<!-- Highlight.js + Copy -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+hljs.highlightAll();
+document.getElementById('copy-code')?.addEventListener('click', function() {
+    const code = document.getElementById('user-code').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        this.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Copied!';
+        setTimeout(() => {
+            this.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> Copy';
+        }, 2000);
+    });
+});
+</script>
 {% endblock %}

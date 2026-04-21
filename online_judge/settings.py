@@ -15,12 +15,14 @@ if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY is missing. Add it to your environment variables.")
 
 # ✅ Security
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-placeholder-key"  # fallback for local dev
-)
-#DEBUG = True
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-placeholder-key")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
+
+if not DEBUG and SECRET_KEY == "django-insecure-placeholder-key":
+    raise RuntimeError(
+        "DJANGO_SECRET_KEY must be set in production. "
+        "Set the DJANGO_SECRET_KEY environment variable."
+    )
 
 ALLOWED_HOSTS = os.environ.get(
     "ALLOWED_HOSTS",
@@ -65,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'profiles.context_processors.member_context',
             ],
         },
     },
@@ -117,3 +120,17 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ✅ Email configuration
+# For local dev: console backend prints reset link in terminal
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@codefun.com'
+
+# For production: uncomment below and comment out the console backend above
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+# DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'noreply@codefun.com')

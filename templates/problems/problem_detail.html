@@ -1,328 +1,342 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ problem.title }} - CodeFun</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <!-- CodeMirror CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
-    <style>
-        .problem-page {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            padding: 2rem;
-        }
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ problem.title }} - CodeFun{% endblock %}
 
-        .problem-statement {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
+{% block extra_head %}
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
+<style>
+    /* Override base max-width for problem page */
+    main.max-w-7xl { max-width: 100% !important; padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 1rem !important; }
+    .CodeMirror { height: 450px; border-radius: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+    .CodeMirror-gutters { border-right: 1px solid #44475a; }
+</style>
+{% endblock %}
 
-        .code-editor-container {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4" data-problem-id="{{ problem.id }}" id="problemPage">
+    <!-- Left: Problem Statement -->
+    <div class="bg-dark-800/50 rounded-xl border border-dark-700 overflow-y-auto max-h-[calc(100vh-8rem)]">
+        <!-- Problem Header -->
+        <div class="sticky top-0 bg-dark-800/95 backdrop-blur-md border-b border-dark-700 px-6 py-4 z-10">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'problem_list' %}" class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                <div class="flex-1">
+                    <h1 class="text-xl font-bold text-white">{{ problem.title }}</h1>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                    {% if problem.difficulty == 'Easy' %}bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20
+                    {% elif problem.difficulty == 'Medium' %}bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20
+                    {% else %}bg-red-500/10 text-red-400 ring-1 ring-red-500/20{% endif %}">
+                    {{ problem.difficulty }} &middot; {{ problem.get_points }} pts
+                </span>
+            </div>
+        </div>
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .custom-io-container {
-            margin-top: 2rem;
-        }
-
-        /* AI Hint Box Styling */
-        #ai-hint-box {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1rem;
-            max-width: 100%;
-        }
-
-        #ai-hint-text {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            word-break: break-word;
-            max-width: 100%;
-            overflow-wrap: break-word;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-            margin: 0;
-            background: white;
-            padding: 1rem;
-            border-radius: 5px;
-            border: 1px solid #e9ecef;
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
-</head>
-<body class="problem-body" data-problem-id="{{ problem.id }}">
-    <div class="problem-page">
-        <!-- Problem Statement -->
-        <div class="problem-statement">
-            <h2>{{ problem.title }}</h2>
-            <p class="difficulty {{ problem.difficulty|lower }}">
-                Difficulty: {{ problem.difficulty }}
-            </p>
-
+        <div class="px-6 py-4 space-y-6">
+            <!-- Description -->
             <div>
-                <h3>📝 Description</h3>
-                <p>{{ problem.description }}</p>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">Description</h3>
+                <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{{ problem.description }}</div>
             </div>
 
+            <!-- Input Format -->
             <div>
-                <h3>📥 Input Format</h3>
-                <pre>{{ problem.input_format }}</pre>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">Input Format</h3>
+                <pre class="text-sm text-gray-300 bg-dark-900/50 rounded-lg p-3 border border-dark-600 overflow-x-auto">{{ problem.input_format }}</pre>
             </div>
 
+            <!-- Output Format -->
             <div>
-                <h3>📤 Output Format</h3>
-                <pre>{{ problem.output_format }}</pre>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">Output Format</h3>
+                <pre class="text-sm text-gray-300 bg-dark-900/50 rounded-lg p-3 border border-dark-600 overflow-x-auto">{{ problem.output_format }}</pre>
             </div>
 
             {% if problem.constraints %}
             <div>
-                <h3>⚖️ Constraints</h3>
-                <pre>{{ problem.constraints }}</pre>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">Constraints</h3>
+                <pre class="text-sm text-gray-300 bg-dark-900/50 rounded-lg p-3 border border-dark-600 overflow-x-auto">{{ problem.constraints }}</pre>
             </div>
             {% endif %}
 
+            <!-- Sample Test Cases -->
             {% if sample_test_cases %}
             <div>
-                <h3>🧪 Sample Test Cases</h3>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Sample Test Cases</h3>
                 {% for tc in sample_test_cases %}
-                <div class="testcase">
-                    <strong>Input {{ forloop.counter }}:</strong>
-                    <pre>{{ tc.input_data }}</pre>
-                    <strong>Output {{ forloop.counter }}:</strong>
-                    <pre>{{ tc.output_data }}</pre>
+                <div class="mb-4 bg-dark-900/30 rounded-lg border border-dark-600 overflow-hidden">
+                    <div class="grid grid-cols-2 divide-x divide-dark-600">
+                        <div class="p-3">
+                            <div class="text-xs font-medium text-gray-500 mb-1">Input {{ forloop.counter }}</div>
+                            <pre class="text-sm text-gray-300 font-mono">{{ tc.input_data }}</pre>
+                        </div>
+                        <div class="p-3">
+                            <div class="text-xs font-medium text-gray-500 mb-1">Output {{ forloop.counter }}</div>
+                            <pre class="text-sm text-emerald-400 font-mono">{{ tc.output_data }}</pre>
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
+
+            <!-- Previous Submissions -->
+            {% if previous_submissions %}
+            <div>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Your Submissions</h3>
+                <div class="space-y-2">
+                    {% for sub in previous_submissions|slice:":5" %}
+                    <a href="{% url 'submissions:submission_detail' sub.id %}" class="flex items-center justify-between p-3 rounded-lg bg-dark-900/30 border border-dark-600 hover:border-dark-500 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-mono text-gray-500">#{{ sub.id }}</span>
+                            <span class="text-sm {% if sub.result == 'Accepted' %}text-emerald-400{% else %}text-red-400{% endif %}">{{ sub.result }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                            <span>{{ sub.language }}</span>
+                            <span>{{ sub.submitted_at|timesince }} ago</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
+    </div>
 
-        <!-- Code Editor -->
-        <div class="code-editor-container">
-            <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="code-editor-form">
+    <!-- Right: Code Editor -->
+    <div class="flex flex-col gap-4 max-h-[calc(100vh-8rem)]">
+        <!-- Editor Card -->
+        <div class="bg-dark-800/50 rounded-xl border border-dark-700 flex-1 flex flex-col overflow-hidden">
+            <form method="POST" action="{% url 'submissions:submit_code' problem.id %}" class="flex flex-col flex-1" id="codeForm">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="language">🔧 Programming Language:</label>
-                    <select name="language" id="language" class="language-select">
-                        <option value="python">🐍 Python</option>
-                        <option value="cpp">⚡ C++</option>
-                        <option value="c">🔩 C</option>
-                        <option value="java">☕ Java</option>
+                <!-- Editor Header -->
+                <div class="flex items-center justify-between px-4 py-3 border-b border-dark-700">
+                    <select name="language" id="language" class="bg-dark-700 border border-dark-600 text-gray-300 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50">
+                        <option value="python">Python</option>
+                        <option value="cpp">C++</option>
+                        <option value="c">C</option>
+                        <option value="java">Java</option>
                     </select>
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <span id="ai-hint-remaining">{{ remaining_hints }} hints left</span>
+                        <span class="text-dark-600">|</span>
+                        <span>Resets in {{ reset_in_hours }}h</span>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="code">💻 Your Code:</label>
-                    <textarea id="code" name="code" placeholder="Write your code here...">{{ code|default_if_none:"" }}</textarea>
+                <!-- Code Editor -->
+                <div class="flex-1 min-h-0">
+                    <textarea id="code" name="code" class="hidden">{{ submitted_code|default_if_none:"" }}</textarea>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" name="action" value="run" class="btn-run">▶️ Run Code</button>
-                    <button type="submit" name="action" value="submit" class="btn-submit">🚀 Submit Code</button>
-                    <button type="button" id="btn-ai-hint" class="btn-hint">💡 Get AI Hint</button>
-                    <span id="ai-hint-loading" class="hidden">⏳ Loading...</span>
-                    <span id="ai-hint-remaining">
-                        🎯 Hints left: 3 (resets in 24 hrs)
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2 px-4 py-3 border-t border-dark-700 bg-dark-800/80">
+                    <button type="submit" name="action" value="run" class="px-4 py-2 bg-dark-600 hover:bg-dark-500 text-gray-200 text-sm font-medium rounded-lg border border-dark-500 transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+                        Run
+                    </button>
+                    <button type="submit" name="action" value="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Submit
+                    </button>
+                    <button type="button" id="btn-ai-hint" class="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 text-sm font-medium rounded-lg border border-purple-500/30 transition-all flex items-center gap-2" onclick="requestAI('hint')">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        Hint
+                    </button>
+                    <button type="button" class="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-sm font-medium rounded-lg border border-blue-500/30 transition-all flex items-center gap-2" onclick="requestAI('review')">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        Review
+                    </button>
+                    <button type="button" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-sm font-medium rounded-lg border border-emerald-500/30 transition-all flex items-center gap-2" onclick="requestAI('complexity')">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        Big-O
+                    </button>
+                    <span id="ai-hint-loading" class="hidden text-sm text-gray-400 flex items-center gap-1">
+                        <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                        Thinking...
                     </span>
                 </div>
             </form>
+        </div>
 
-            <!-- AI Hint Box -->
-            <div id="ai-hint-box" class="hidden">
-                <h4>🤖 AI Hint:</h4>
-                <pre id="ai-hint-text"></pre>
+        <!-- AI Response Box -->
+        <div id="ai-hint-box" class="hidden bg-purple-500/5 rounded-xl border border-purple-500/20 p-4">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    <h4 id="ai-hint-title" class="text-sm font-semibold text-purple-400">AI Hint</h4>
+                </div>
+                <button onclick="document.getElementById('ai-hint-box').classList.add('hidden')" class="text-gray-500 hover:text-gray-300 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
+            <div id="ai-hint-text" class="text-sm text-gray-300 leading-relaxed prose prose-invert prose-sm max-w-none"></div>
+        </div>
 
-            <!-- Custom Input/Output Testing -->
-            <div class="custom-io-container">
-                <h3>🔧 Custom Input / Output Testing</h3>
-                <textarea id="custom-input" placeholder="Enter your test input here...
-
-Example:
-3 7"></textarea>
-                <button id="run-custom-btn">🎯 Run with Custom Input</button>
-                <div class="output-container">
-                    <h4>📤 Output:</h4>
-                    <pre id="custom-output">Your output will appear here...</pre>
+        <!-- Custom I/O Panel -->
+        <div class="bg-dark-800/50 rounded-xl border border-dark-700 overflow-hidden">
+            <button type="button" id="toggleCustomIO" class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                <span>Custom Input / Output</span>
+                <svg id="customIOArrow" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="customIOPanel" class="hidden border-t border-dark-700">
+                <div class="grid grid-cols-2 divide-x divide-dark-700">
+                    <div class="p-3">
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Input</label>
+                        <textarea id="custom-input" placeholder="Enter test input..." class="w-full h-24 bg-dark-900 border border-dark-600 rounded-lg p-2 text-sm text-gray-300 font-mono placeholder-gray-600 resize-none focus:outline-none focus:ring-1 focus:ring-primary-500/50"></textarea>
+                    </div>
+                    <div class="p-3">
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Output</label>
+                        <pre id="custom-output" class="w-full h-24 bg-dark-900 border border-dark-600 rounded-lg p-2 text-sm text-gray-300 font-mono overflow-auto">Output appears here...</pre>
+                    </div>
+                </div>
+                <div class="px-3 pb-3">
+                    <button id="run-custom-btn" type="button" class="px-4 py-2 bg-dark-600 hover:bg-dark-500 text-gray-200 text-sm font-medium rounded-lg border border-dark-500 transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+                        Run Custom
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <!-- CodeMirror Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/python/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/matchbrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
+{% block extra_scripts %}
+<!-- CodeMirror Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/addon/edit/closebrackets.min.js"></script>
+<script>
+    const problemId = document.getElementById('problemPage').dataset.problemId;
 
-    <script>
-        // Get problem ID from data attribute
-        const problemId = document.body.dataset.problemId;
+    // Init CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true, mode: "python", theme: "dracula",
+        matchBrackets: true, autoCloseBrackets: true,
+        indentUnit: 4, tabSize: 4, indentWithTabs: false,
+    });
+    editor.setValue(document.getElementById("code").value);
 
-        // Initialize CodeMirror
-        const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            lineNumbers: true,
-            mode: "python",
-            theme: "dracula",
-            matchBrackets: true,
-            autoCloseBrackets: true,
-            indentUnit: 4,
-            tabSize: 4,
-            indentWithTabs: true,
-        });
+    // Language change
+    document.getElementById("language").addEventListener("change", function() {
+        const modes = { python: "python", cpp: "text/x-c++src", c: "text/x-csrc", java: "text/x-java" };
+        editor.setOption("mode", modes[this.value] || "python");
+    });
 
-        // ✅ Load existing code into editor if available
-        editor.setValue(document.getElementById("code").value);
+    // Sync code before submit
+    document.getElementById("codeForm").addEventListener("submit", function() {
+        document.getElementById("code").value = editor.getValue();
+    });
 
-        // Language change handler
-        document.getElementById("language").addEventListener("change", function() {
-            const language = this.value;
-            let mode = "python";
-            
-            switch(language) {
-                case "cpp":
-                case "c":
-                    mode = "text/x-csrc";
-                    break;
-                case "java":
-                    mode = "text/x-java";
-                    break;
-                default:
-                    mode = "python";
+    // Custom I/O toggle
+    document.getElementById("toggleCustomIO").addEventListener("click", function() {
+        const panel = document.getElementById("customIOPanel");
+        const arrow = document.getElementById("customIOArrow");
+        panel.classList.toggle("hidden");
+        arrow.style.transform = panel.classList.contains("hidden") ? "" : "rotate(180deg)";
+    });
+
+    // Custom run
+    document.getElementById("run-custom-btn").addEventListener("click", async function() {
+        const code = editor.getValue();
+        const language = document.getElementById("language").value;
+        const customInput = document.getElementById("custom-input").value;
+        const output = document.getElementById("custom-output");
+
+        if (!code.trim()) { output.textContent = "Please enter some code first"; return; }
+        output.textContent = "Running...";
+        output.className = "w-full h-24 bg-dark-900 border border-dark-600 rounded-lg p-2 text-sm text-yellow-400 font-mono overflow-auto";
+
+        try {
+            const fd = new FormData();
+            fd.append('code', code); fd.append('language', language); fd.append('custom_input', customInput);
+            const res = await fetch(`/submissions/problems/${problemId}/run-custom/`, {
+                method: 'POST', headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}, body: fd
+            });
+            const data = await res.json();
+            if (data.error) {
+                output.textContent = data.error;
+                output.className = "w-full h-24 bg-dark-900 border border-red-500/30 rounded-lg p-2 text-sm text-red-400 font-mono overflow-auto";
+            } else {
+                output.textContent = data.output + (data.execution_time ? `\n\n[${data.execution_time}ms]` : '');
+                output.className = "w-full h-24 bg-dark-900 border border-emerald-500/30 rounded-lg p-2 text-sm text-emerald-400 font-mono overflow-auto";
             }
-            
-            editor.setOption("mode", mode);
-        });
+        } catch (err) {
+            output.textContent = "Error: " + err.message;
+            output.className = "w-full h-24 bg-dark-900 border border-red-500/30 rounded-lg p-2 text-sm text-red-400 font-mono overflow-auto";
+        }
+    });
 
-        // Form submission handler
-        document.querySelector(".code-editor-form").addEventListener("submit", function (e) {
-            document.getElementById("code").value = editor.getValue();
-        });
+    // AI Features
+    const hintLoading = document.getElementById('ai-hint-loading');
+    const hintBox = document.getElementById('ai-hint-box');
+    const hintText = document.getElementById('ai-hint-text');
+    const hintTitle = document.getElementById('ai-hint-title');
+    const hintRemaining = document.getElementById('ai-hint-remaining');
 
-        // Custom run functionality
-        document.getElementById("run-custom-btn").addEventListener("click", async function() {
-            const code = editor.getValue();
-            const language = document.getElementById("language").value;
-            const customInput = document.getElementById("custom-input").value;
-            const outputElement = document.getElementById("custom-output");
+    const AI_TITLES = {
+        hint: 'AI Hint',
+        review: 'Code Review',
+        complexity: 'Complexity Analysis'
+    };
 
-            if (!code.trim()) {
-                outputElement.textContent = "⚠️ Please enter some code first!";
-                outputElement.className = "output-error";
-                return;
+    window.requestAI = async function(hintType) {
+        const code = editor.getValue();
+        const language = document.getElementById('language').value;
+        if (!code.trim()) {
+            hintBox.classList.remove('hidden');
+            hintTitle.textContent = AI_TITLES[hintType];
+            hintText.innerHTML = '<p class="text-gray-400">Please enter some code first.</p>';
+            return;
+        }
+
+        hintLoading.classList.remove('hidden');
+        document.querySelectorAll('[onclick^="requestAI"]').forEach(b => b.disabled = true);
+
+        try {
+            const fd = new FormData();
+            fd.append('code', code);
+            fd.append('language', language);
+            fd.append('hint_type', hintType);
+            const res = await fetch(`/submissions/problems/${problemId}/ai-hint/`, {
+                method: 'POST',
+                headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+                body: fd
+            });
+            const data = await res.json();
+            hintTitle.textContent = AI_TITLES[hintType] || 'AI Response';
+            if (data.error) {
+                hintText.innerHTML = `<p class="text-red-400">${data.error}</p>`;
+            } else {
+                // Simple markdown rendering
+                let html = data.hint
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+                    .replace(/`([^`]+)`/g, '<code class="bg-dark-700 px-1 py-0.5 rounded text-purple-300 text-xs">$1</code>')
+                    .replace(/^### (.+)$/gm, '<h3 class="text-white font-semibold text-base mt-3 mb-1">$1</h3>')
+                    .replace(/^## (.+)$/gm, '<h2 class="text-white font-semibold text-base mt-3 mb-1">$1</h2>')
+                    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc text-gray-300">$1</li>')
+                    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal text-gray-300">$1</li>')
+                    .replace(/\n\n/g, '<br><br>')
+                    .replace(/\n/g, '<br>');
+                hintText.innerHTML = html;
             }
-
-            // Show running state
-            outputElement.textContent = `🔄 Running ${language} code...\n\nInput:\n${customInput}\n\n⏳ Processing...`;
-            outputElement.className = "output-running";
-
-            try {
-                const formData = new FormData();
-                formData.append('code', code);
-                formData.append('language', language);
-                formData.append('custom_input', customInput);
-
-                const response = await fetch(`/submissions/problems/${problemId}/run-custom/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-                
-                if (data.error) {
-                    outputElement.textContent = `❌ ${data.error}`;
-                    outputElement.className = "output-error";
-                } else {
-                    outputElement.textContent = data.output;
-                    outputElement.className = "output-success";
-                }
-            } catch (error) {
-                outputElement.textContent = `❌ Error: ${error.message}`;
-                outputElement.className = "output-error";
-            }
-        });
-
-        // AI Hint functionality - FIXED VERSION
-        const hintBtn = document.getElementById('btn-ai-hint');
-        const hintLoading = document.getElementById('ai-hint-loading');
-        const hintBox = document.getElementById('ai-hint-box');
-        const hintText = document.getElementById('ai-hint-text');
-        const hintRemaining = document.getElementById('ai-hint-remaining');
-
-        hintBtn.addEventListener('click', async function() {
-            const code = editor.getValue();
-            const language = document.getElementById('language').value;
-            
-            if (!code.trim()) {
-                hintBox.classList.remove('hidden');
-                hintText.textContent = "⚠️ Please enter some code first before requesting a hint!";
-                hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
-                return;
-            }
-
-            hintBtn.disabled = true;
-            hintLoading.classList.remove('hidden');
-
-            try {
-                const formData = new FormData();
-                formData.append('code', code);
-                formData.append('language', language);
-
-                const response = await fetch(`/submissions/problems/${problemId}/ai-hint/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-                
-                if (data.error) {
-                    hintText.textContent = `❌ ${data.error}`;
-                    if (data.remaining_hints !== undefined) {
-                        hintRemaining.textContent = `🎯 Hints left: ${data.remaining_hints} (resets in ${data.reset_in_hours} hrs)`;
-                    }
-                } else {
-                    hintText.textContent = data.hint;
-                    hintRemaining.textContent = `🎯 Hints left: ${data.remaining_hints} (resets in ${data.reset_in_hours} hrs)`;
-                }
-                
-                hintBox.classList.remove('hidden');
-                hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
-                
-            } catch (error) {
-                hintText.textContent = `❌ Error getting hint: ${error.message}`;
-                hintBox.classList.remove('hidden');
-                hintBox.scrollIntoView({ behavior: "smooth", block: "center" });
-            } finally {
-                hintBtn.disabled = false;
-                hintLoading.classList.add('hidden');
-            }
-        });
-    </script>
-</body>
-</html>
+            if (data.remaining_hints !== undefined) hintRemaining.textContent = `${data.remaining_hints} hints left`;
+            hintBox.classList.remove('hidden');
+            hintBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } catch (err) {
+            hintText.innerHTML = `<p class="text-red-400">Error: ${err.message}</p>`;
+            hintBox.classList.remove('hidden');
+        } finally {
+            document.querySelectorAll('[onclick^="requestAI"]').forEach(b => b.disabled = false);
+            hintLoading.classList.add('hidden');
+        }
+    };
+</script>
+{% endblock %}

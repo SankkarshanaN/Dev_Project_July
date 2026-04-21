@@ -6,6 +6,7 @@ from submissions.models import Submission, Problem
 from django.contrib.auth.views import LoginView
 from django.db.models import Sum, Case, When, IntegerField
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.urls import reverse_lazy
 
 
@@ -89,6 +90,7 @@ def register(request):
     return render(request, "accounts/register.html", {"form": form})
 
 
+@require_POST
 def custom_logout(request):
     logout(request)
     return redirect(f"{reverse_lazy('login')}?logged_out=1")

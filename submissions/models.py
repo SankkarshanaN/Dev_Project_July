@@ -7,6 +7,7 @@ from datetime import timedelta
 LANGUAGE_CHOICES = [
     ('python', 'Python'),
     ('cpp', 'C++'),
+    ('c', 'C'),
     ('java', 'Java'),
 ]
 
@@ -50,7 +51,7 @@ class SubmissionResult(models.Model):
 class AIHintUsage(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     used_hints = models.IntegerField(default=0)
-    limit = models.IntegerField(default=3)  # default 3 hints per day
+    limit = models.IntegerField(default=10)
     last_reset = models.DateTimeField(default=timezone.now)
 
     def reset_if_needed(self):

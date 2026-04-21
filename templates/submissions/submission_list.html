@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}My Submissions - CodeFun{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-2xl font-bold text-white">My Submissions</h1>
+        <p class="text-sm text-gray-400 mt-1">{{ page_obj.paginator.count }} total submission{{ page_obj.paginator.count|pluralize }}</p>
+    </div>
+</div>
+
+<!-- Submissions Table -->
+<div class="bg-dark-800/50 rounded-xl border border-dark-700 overflow-hidden">
+    <table class="w-full">
+        <thead>
+            <tr class="border-b border-dark-600">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">#</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Problem</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Language</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-36">Verdict</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-40">Submitted</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-dark-700">
+            {% for sub in page_obj %}
+            <tr class="hover:bg-dark-700/50 transition-colors">
+                <td class="px-6 py-4">
+                    <a href="{% url 'submissions:submission_detail' sub.id %}" class="text-sm text-gray-500 font-mono hover:text-primary-400 transition-colors">{{ sub.id }}</a>
+                </td>
+                <td class="px-6 py-4">
+                    <a href="{% url 'problem_detail' sub.problem.id %}" class="text-sm font-medium text-gray-200 hover:text-primary-400 transition-colors">{{ sub.problem.title }}</a>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-dark-600 text-gray-300 border border-dark-500">
+                        {{ sub.language }}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center gap-1.5 text-sm font-medium
+                        {% if sub.result == 'Accepted' %}text-emerald-400
+                        {% elif sub.result == 'Wrong Answer' %}text-red-400
+                        {% elif sub.result == 'Runtime Error' %}text-amber-400
+                        {% else %}text-gray-400{% endif %}">
+                        {% if sub.result == 'Accepted' %}
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        {% elif sub.result == 'Wrong Answer' %}
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                        {% else %}
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        {% endif %}
+                        {{ sub.result }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ sub.submitted_at|timesince }} ago</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-6 py-16 text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-dark-700 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-400 mb-1">No submissions yet</h3>
+                    <p class="text-sm text-gray-500 mb-4">Start solving problems to see your submissions here</p>
+                    <a href="{% url 'problem_list' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium rounded-lg transition-colors">
+                        Browse Problems
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="flex items-center justify-between mt-6">
+    <div class="text-sm text-gray-500">
+        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+    </div>
+    <div class="flex items-center gap-1">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 text-sm text-gray-400 hover:text-white bg-dark-800 hover:bg-dark-700 rounded-lg border border-dark-600 transition-colors">Previous</a>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="px-3 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}" class="px-3 py-2 text-sm text-gray-400 hover:text-white bg-dark-800 hover:bg-dark-700 rounded-lg border border-dark-600 transition-colors">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 text-sm text-gray-400 hover:text-white bg-dark-800 hover:bg-dark-700 rounded-lg border border-dark-600 transition-colors">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

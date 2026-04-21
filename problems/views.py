@@ -9,9 +9,34 @@ from datetime import timedelta
 
 @login_required
 def problem_list(request):
-    problems = Problem.objects.all()
-    return render(request, 'problems/problem_list.html', {'problems': problems})
+    problems = Problem.objects.all().order_by('difficulty', 'title')
+    
+    # Search functionality
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        problems = problems.filter(title__icontains=search_query)
+    
+    # Difficulty filter
+    difficulty_filter = request.GET.get('difficulty', '').strip()
+    if difficulty_filter in ('Easy', 'Medium', 'Hard'):
+        problems = problems.filter(difficulty=difficulty_filter)
+    
+    # Track which problems the user has solved
+    solved_problem_ids = set(
+        Submission.objects.filter(user=request.user, result='Accepted')
+        .values_list('problem_id', flat=True)
+        .distinct()
+    )
+    
+    context = {
+        'problems': problems,
+        'search_query': search_query,
+        'difficulty_filter': difficulty_filter,
+        'solved_problem_ids': solved_problem_ids,
+    }
+    return render(request, 'problems/problem_list.html', context)
 
+@login_required
 def problem_detail(request, problem_id):
     problem = get_object_or_404(Problem, id=problem_id)
     sample_test_cases = problem.test_cases.filter(is_sample=True)

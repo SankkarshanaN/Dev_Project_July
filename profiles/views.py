@@ -6,13 +6,11 @@ from django.db.models import Count, Sum, Case, When, IntegerField
 from django.contrib import messages
 from django.contrib.auth.models import User
 from submissions.models import Submission, Problem
-from django.db.models import Count
+from django.core.paginator import Paginator
 
 @login_required
 def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
-
-    # Get or create member profile (important for new users)
     member, created = Member.objects.get_or_create(user=profile_user)
 
     # Handle profile picture update
@@ -20,7 +18,7 @@ def profile_view(request, username):
         form = ProfilePictureForm(request.POST, request.FILES, instance=member)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile picture updated successfully! 🎉')
+            messages.success(request, 'Profile picture updated successfully!')
             return redirect('profile', username=request.user.username)
         else:
             messages.error(request, 'Error updating profile picture. Please try again.')
@@ -36,76 +34,107 @@ def profile_view(request, username):
         .first()
     )
 
-    # Update member stats
-    if created or member.total_submissions == 0:
-        member.total_submissions = Submission.objects.filter(user=profile_user).count()
-        member.problems_solved = (
-            Submission.objects.filter(user=profile_user, result="Accepted")
-            .values("problem")
-            .distinct()
-            .count()
-        )
+    # Only update member stats if values have changed (avoid unnecessary DB writes)
+    new_total = Submission.objects.filter(user=profile_user).count()
+    new_solved = (
+        Submission.objects.filter(user=profile_user, result="Accepted")
+        .values("problem")
+        .distinct()
+        .count()
+    )
+    new_lang = favorite_lang["language"] if favorite_lang else member.favorite_language
+
+    if (
+        member.total_submissions != new_total
+        or member.problems_solved != new_solved
+        or member.favorite_language != new_lang
+    ):
+        member.total_submissions = new_total
+        member.problems_solved = new_solved
+        member.favorite_language = new_lang
         member.save()
+
+    # All submissions, paginated
+    all_submissions = (
+        Submission.objects.filter(user=profile_user)
+        .select_related('problem')
+        .order_by('-submitted_at')
+    )
+    paginator = Paginator(all_submissions, 20)
+    page_number = request.GET.get('page')
+    submissions_page = paginator.get_page(page_number)
+
+    # Calculate points
+    accepted_problems = (
+        Submission.objects.filter(user=profile_user, result="Accepted")
+        .values_list("problem", flat=True)
+        .distinct()
+    )
+    points = (
+        Problem.objects.filter(id__in=accepted_problems)
+        .aggregate(
+            total=Sum(
+                Case(
+                    When(difficulty="Easy", then=10),
+                    When(difficulty="Medium", then=20),
+                    When(difficulty="Hard", then=30),
+                    default=0,
+                    output_field=IntegerField(),
+                )
+            )
+        )["total"] or 0
+    )
 
     context = {
         'profile_user': profile_user,
         'member': member,
         'form': form,
         'favorite_language': favorite_lang["language"] if favorite_lang else None,
+        'submissions_page': submissions_page,
+        'points': points,
     }
     return render(request, 'profiles/profile.html', context)
 
 def leaderboard(request):
-    # Distinct accepted problems
-    user_problem_map = (
+    # Fetch distinct accepted (user, problem, difficulty) pairs in a single query
+    # joining problem difficulty avoids a second query for problem points
+    distinct_accepted = (
         Submission.objects.filter(result="Accepted")
-        .values("user", "user__username", "problem")  # also pull username
+        .values("user_id", "user__username", "problem_id", "problem__difficulty")
         .distinct()
     )
 
-    # Problem → points mapping
-    problem_points = dict(
-        Problem.objects.values_list(
-            "id",
-            Case(
-                When(difficulty="Easy", then=10),
-                When(difficulty="Medium", then=20),
-                When(difficulty="Hard", then=30),
-                default=0,
-                output_field=IntegerField(),
-            ),
-        )
-    )
+    POINTS = {"Easy": 10, "Medium": 20, "Hard": 30}
 
     leaderboard_data = {}
-    for entry in user_problem_map:
-        uid, username, pid = entry["user"], entry["user__username"], entry["problem"]
-        points = problem_points.get(pid, 0)
-
+    for entry in distinct_accepted:
+        uid = entry["user_id"]
         if uid not in leaderboard_data:
             leaderboard_data[uid] = {
-                "username": username,
+                "username": entry["user__username"],
                 "points": 0,
                 "problems_solved": 0,
             }
-
-        leaderboard_data[uid]["points"] += points
+        leaderboard_data[uid]["points"] += POINTS.get(entry["problem__difficulty"], 0)
         leaderboard_data[uid]["problems_solved"] += 1
 
-    leaderboard = [
-        {
-            "username": data["username"],
-            "points": data["points"],
-            "problems_solved": data["problems_solved"],
-        }
-        for uid, data in leaderboard_data.items()
-    ]
-
-    # Sort and limit to top 10
-    leaderboard = sorted(
-        leaderboard,
+    leaderboard_list = sorted(
+        leaderboard_data.values(),
         key=lambda x: (x["points"], x["problems_solved"]),
         reverse=True,
-    )[:10]
+    )
 
-    return render(request, "profiles/leaderboard.html", {"leaderboard": leaderboard})
+    # Add rank
+    for i, entry in enumerate(leaderboard_list):
+        entry["rank"] = i + 1
+
+    # Pagination
+    paginator = Paginator(leaderboard_list, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "profiles/leaderboard.html", {
+        "leaderboard": page_obj,
+        "page_obj": page_obj,
+        "total_users": len(leaderboard_list),
+    })
