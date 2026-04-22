@@ -1,4 +1,22 @@
 from django.db import models
+from django.utils.text import slugify
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=60, unique=True, blank=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
 
 class Problem(models.Model):
     DIFFICULTY_CHOICES = [
@@ -15,6 +33,7 @@ class Problem(models.Model):
     sample_input = models.TextField()
     sample_output = models.TextField()
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
+    tags = models.ManyToManyField(Tag, related_name='problems', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_points(self):
@@ -23,7 +42,7 @@ class Problem(models.Model):
             'Medium': 20,
             'Hard': 30
         }[self.difficulty]
-    
+
     def __str__(self):
         return self.title
 
