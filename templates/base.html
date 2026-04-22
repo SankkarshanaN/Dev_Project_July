@@ -62,31 +62,99 @@
         }
 
         /* ===== Light-mode overrides =====
-           The site's templates use fixed `bg-dark-*` / `text-gray-*` utilities
-           (not `dark:` variants). These rules remap them when `.dark` is absent. */
-        html:not(.dark) body { background-color: #f8fafc; color: #0f172a; }
-        html:not(.dark) .bg-dark-950 { background-color: #f8fafc !important; }
-        html:not(.dark) .bg-dark-900, html:not(.dark) .bg-dark-900\/95 { background-color: #ffffff !important; }
-        html:not(.dark) .bg-dark-800 { background-color: #f1f5f9 !important; }
-        html:not(.dark) .bg-dark-700 { background-color: #e2e8f0 !important; }
-        html:not(.dark) .hover\:bg-dark-800:hover { background-color: #e2e8f0 !important; }
-        html:not(.dark) .hover\:bg-dark-700:hover { background-color: #cbd5e1 !important; }
+           The site's templates hard-code `bg-dark-*` / `text-gray-*` utilities.
+           These rules remap them when `.dark` is absent on <html>. */
+        html:not(.dark) body { background-color: #f1f5f9; color: #0f172a; }
 
-        html:not(.dark) .text-gray-100, html:not(.dark) .text-white { color: #0f172a !important; }
+        /* Page backgrounds */
+        html:not(.dark) .bg-dark-950 { background-color: #f1f5f9 !important; }
+
+        /* Nav / top-level surface (near-white) */
+        html:not(.dark) .bg-dark-900,
+        html:not(.dark) .bg-dark-900\/95,
+        html:not(.dark) .bg-dark-900\/50 { background-color: #ffffff !important; }
+
+        /* Cards — slightly off-white for depth */
+        html:not(.dark) .bg-dark-800,
+        html:not(.dark) .bg-dark-800\/50,
+        html:not(.dark) .bg-dark-800\/30,
+        html:not(.dark) .bg-dark-800\/95 { background-color: #ffffff !important; }
+
+        /* Nested surfaces (cards inside cards) — light gray */
+        html:not(.dark) .bg-dark-700,
+        html:not(.dark) .bg-dark-700\/50,
+        html:not(.dark) .bg-dark-700\/30,
+        html:not(.dark) .bg-dark-700\/95 { background-color: #f1f5f9 !important; }
+
+        html:not(.dark) .bg-dark-600 { background-color: #e2e8f0 !important; }
+
+        /* Hover states */
+        html:not(.dark) .hover\:bg-dark-800:hover { background-color: #f8fafc !important; }
+        html:not(.dark) .hover\:bg-dark-700:hover,
+        html:not(.dark) .hover\:bg-dark-700\/50:hover { background-color: #e2e8f0 !important; }
+        html:not(.dark) .hover\:bg-dark-600:hover { background-color: #cbd5e1 !important; }
+
+        /* Cards add subtle shadow in light mode for depth (since dark borders are weak on white) */
+        html:not(.dark) [class*="rounded-xl"][class*="bg-dark-800"],
+        html:not(.dark) [class*="rounded-2xl"][class*="bg-dark-800"] {
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        /* Text */
+        html:not(.dark) .text-white { color: #0f172a !important; }
+        html:not(.dark) .text-gray-100 { color: #0f172a !important; }
         html:not(.dark) .text-gray-200 { color: #1e293b !important; }
         html:not(.dark) .text-gray-300 { color: #334155 !important; }
-        html:not(.dark) .text-gray-400 { color: #475569 !important; }
+        html:not(.dark) .text-gray-400 { color: #64748b !important; }
         html:not(.dark) .text-gray-500 { color: #64748b !important; }
         html:not(.dark) .text-gray-600 { color: #94a3b8 !important; }
         html:not(.dark) .hover\:text-white:hover { color: #0f172a !important; }
 
-        html:not(.dark) .border-dark-800, html:not(.dark) .border-dark-700, html:not(.dark) .border-dark-700\/50,
+        /* Gradient text (like "CodeFun" brand) — keep orange */
+        html:not(.dark) .bg-clip-text.text-transparent { color: transparent !important; }
+
+        /* Borders */
+        html:not(.dark) .border-dark-950,
+        html:not(.dark) .border-dark-900,
+        html:not(.dark) .border-dark-800,
+        html:not(.dark) .border-dark-700,
+        html:not(.dark) .border-dark-700\/50,
         html:not(.dark) .border-dark-600 { border-color: #e2e8f0 !important; }
 
-        /* Input fields in light mode */
+        html:not(.dark) .border-dark-500 { border-color: #cbd5e1 !important; }
+        html:not(.dark) .divide-dark-700 > * + * { border-color: #e2e8f0 !important; }
+
+        /* Colored tinted backgrounds (badges, icon chips like bg-emerald-500/10) look fine
+           in light mode against white cards — no override needed. */
+
+        /* Welcome banner gradient — lighten for readability */
+        html:not(.dark) .from-primary-600\/20 { --tw-gradient-from: rgba(234,88,12,0.1) var(--tw-gradient-from-position) !important; }
+        html:not(.dark) .via-primary-500\/10 { --tw-gradient-via: rgba(249,115,22,0.08) var(--tw-gradient-via-position) !important; }
+        html:not(.dark) .to-purple-600\/20 { --tw-gradient-to: rgba(147,51,234,0.1) var(--tw-gradient-to-position) !important; }
+
+        /* Input fields */
         html:not(.dark) input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),
         html:not(.dark) textarea, html:not(.dark) select {
             background-color: #ffffff !important; color: #0f172a !important; border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) input::placeholder, html:not(.dark) textarea::placeholder { color: #94a3b8 !important; }
+
+        /* Theme toggle button — give it a distinct look in light mode */
+        html:not(.dark) .theme-toggle-btn { background-color: #f1f5f9 !important; border-color: #cbd5e1 !important; }
+        html:not(.dark) .theme-toggle-btn:hover { background-color: #e2e8f0 !important; }
+
+        /* User menu button */
+        html:not(.dark) #userMenuBtn { background-color: #f1f5f9 !important; border-color: #cbd5e1 !important; }
+        html:not(.dark) #userMenuBtn:hover { background-color: #e2e8f0 !important; }
+
+        /* Footer needs a subtle top border in light mode */
+        html:not(.dark) footer { background-color: #ffffff !important; border-top-color: #e2e8f0 !important; }
+
+        /* Shadow on cards for depth in light mode (fallback for non-xl radii) */
+        html:not(.dark) [class*="bg-dark-800"].rounded-lg,
+        html:not(.dark) [class*="bg-dark-800"].rounded-xl,
+        html:not(.dark) [class*="bg-dark-800"].rounded-2xl {
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
         }
     </style>
     {% block extra_head %}{% endblock %}
@@ -119,11 +187,11 @@
                 <div class="flex items-center gap-4">
                     <!-- Theme toggle -->
                     <button id="themeToggle" type="button" aria-label="Toggle theme"
-                        class="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 border border-dark-600 transition-colors">
+                        class="theme-toggle-btn p-2 rounded-lg bg-dark-800 hover:bg-dark-700 border border-dark-600 transition-colors">
                         <svg id="iconSun" class="w-5 h-5 text-amber-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
-                        <svg id="iconMoon" class="w-5 h-5 text-indigo-300 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="iconMoon" class="w-5 h-5 text-slate-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                         </svg>
                     </button>
