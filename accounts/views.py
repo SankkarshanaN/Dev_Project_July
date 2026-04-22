@@ -8,8 +8,11 @@ from django.db.models import Sum, Case, When, IntegerField
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.urls import reverse_lazy
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
 
 
+@method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=False), name='post')
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     redirect_authenticated_user = True  # skips login if already logged in
@@ -20,6 +23,12 @@ class CustomLoginView(LoginView):
         if request.GET.get("logged_out") == "1":
             messages.success(request, "You have successfully logged out.")
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if getattr(request, 'limited', False):
+            messages.error(request, "Too many login attempts. Please try again in a minute.")
+            return self.render_to_response(self.get_context_data(form=self.get_form()))
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         list(messages.get_messages(self.request))  # clear previous messages
@@ -75,8 +84,12 @@ def dashboard(request):
     return render(request, "accounts/dashboard.html", context)
 
 
+@ratelimit(key='ip', rate='5/h', method='POST', block=False)
 def register(request):
     if request.method == "POST":
+        if getattr(request, 'limited', False):
+            messages.error(request, "Too many registration attempts. Please try again later.")
+            return render(request, "accounts/register.html", {"form": CustomRegisterForm()})
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
