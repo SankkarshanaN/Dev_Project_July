@@ -18,6 +18,7 @@ import google.generativeai as genai
 
 from django.utils import timezone
 from datetime import timedelta
+from django_ratelimit.decorators import ratelimit
 
 
 # Configure the Gemini AI client
@@ -49,7 +50,10 @@ def submission_list(request):
 # -------------------------------
 @login_required
 @require_POST
+@ratelimit(key='user', rate='30/m', method='POST', block=False)
 def run_custom(request, problem_id):
+    if getattr(request, 'limited', False):
+        return JsonResponse({"error": "Too many runs. Please wait a moment."}, status=429)
     try:
         code = request.POST.get("code", "")
         language = request.POST.get("language", "python")
@@ -218,12 +222,22 @@ def judge_submission(code, language, test_cases):
 # Submit & Detail
 # -------------------------------
 @login_required
+@ratelimit(key='user', rate='20/m', method='POST', block=False)
 def submit_code(request, problem_id):
     problem = get_object_or_404(Problem, id=problem_id)
 
     if request.method != "POST":
         # change to your named URL if different
         return redirect("problems:problem_detail", pk=problem.id)
+
+    if getattr(request, 'limited', False):
+        return render(request, "submissions/run_results.html", {
+            "problem": problem,
+            "verdict": "Rate Limited",
+            "execution_time": 0,
+            "results": [],
+            "error_message": "Too many submissions. Please wait a moment.",
+        })
 
     language = request.POST.get("language")
     code = request.POST.get("code", "")
@@ -384,7 +398,11 @@ def _friendly_error(exc):
 
 @login_required
 @require_POST
+@ratelimit(key='user', rate='10/m', method='POST', block=False)
 def ai_hint(request, problem_id):
+    if getattr(request, 'limited', False):
+        return JsonResponse({"error": "Too many AI requests. Please slow down."}, status=429)
+
     code = request.POST.get("code", "").strip()
     language = request.POST.get("language", "python")
     hint_type = request.POST.get("hint_type", "hint")

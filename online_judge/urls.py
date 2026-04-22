@@ -5,6 +5,17 @@ from django.conf.urls.static import static
 from accounts.views import CustomLoginView, custom_logout, dashboard
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
+from django_ratelimit.decorators import ratelimit
+
+
+# Rate-limit password reset requests to 3 per hour per IP to prevent email bombing
+RateLimitedPasswordResetView = ratelimit(
+    key='ip', rate='3/h', method='POST', block=True
+)(auth_views.PasswordResetView.as_view(
+    template_name='accounts/password_reset.html',
+    email_template_name='accounts/password_reset_email.html',
+    subject_template_name='accounts/password_reset_subject.txt',
+))
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,12 +25,8 @@ urlpatterns = [
     path('logout/', custom_logout, name='logout'),
     path('dashboard/', dashboard, name='dashboard'),
 
-    # Password reset flow
-    path('password-reset/', auth_views.PasswordResetView.as_view(
-        template_name='accounts/password_reset.html',
-        email_template_name='accounts/password_reset_email.html',
-        subject_template_name='accounts/password_reset_subject.txt',
-    ), name='password_reset'),
+    # Password reset flow (rate limited to 3/hour per IP)
+    path('password-reset/', RateLimitedPasswordResetView, name='password_reset'),
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
         template_name='accounts/password_reset_done.html',
     ), name='password_reset_done'),
